@@ -1,12 +1,12 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { Faucet } from "../target/types/faucet";
+import { Cascade } from "../target/types/cascade";
 
-describe("faucet", () => {
+describe("cascade", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const program = anchor.workspace.faucet as Program<Faucet>;
+  const program = anchor.workspace.cascade as Program<Cascade>;
 
   it("Is initialized!", async () => {
     // Add your test here.

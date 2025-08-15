@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-faucet = "6LvLTeiy6JNitq1WGdGp75DvRBHKrmpMAREfYgoMMyGq"
+cascade = "6LvLTeiy6JNitq1WGdGp75DvRBHKrmpMAREfYgoMMyGq"
 
 [registry]
 url = "https://api.apr.dev"
