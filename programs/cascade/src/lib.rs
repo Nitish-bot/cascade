@@ -1,4 +1,7 @@
+pub mod constants;
+
 use anchor_lang::prelude::*;
+use constants::*;
 
 declare_id!("6LvLTeiy6JNitq1WGdGp75DvRBHKrmpMAREfYgoMMyGq");
 
@@ -8,15 +11,26 @@ pub mod cascade {
 
     use super::*;
 
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        let campaign_counter = &mut ctx.accounts.campaign_counter;
+        campaign_counter.count = 0;
+
+        Ok(())
+    }
+
     pub fn create_campaign(ctx: Context<CreateCampaign>, goal: u64, metadata: String) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
-        
+        let campaign_counter = &mut ctx.accounts.campaign_counter;
+
+        campaign.id = campaign_counter.count;
         campaign.organiser = ctx.accounts.organiser.key();
         campaign.goal = goal;
         campaign.raised = 0;
         campaign.metadata = metadata;
         campaign.vault_bump = ctx.bumps.vault;
-        campaign.created_at = Clock::get()?.unix_timestamp as u64;
+        campaign.created_at = Clock::get()?.unix_timestamp;
+
+        campaign_counter.count = campaign_counter.count.checked_add(1).unwrap();
 
         Ok(())
     }
@@ -24,6 +38,7 @@ pub mod cascade {
     pub fn donate(ctx: Context<Donate>, amount: u64) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         let donor = &ctx.accounts.donor;
+        let platfee = PLATFORM_FEE_BPS;
 
         transfer(
             CpiContext::new(
@@ -61,6 +76,23 @@ pub mod cascade {
 }
 
 #[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(mut)]
+    pub signer: Signer<'info>,
+
+    #[account(
+        init,
+        payer = signer,
+        space = 8 + CampaignCounter::INIT_SPACE,
+        seeds = [b"campaign_counter"],
+        bump
+    )]
+    pub campaign_counter: Account<'info, CampaignCounter>,
+
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
 pub struct CreateCampaign<'info> {
     #[account(mut)]
     pub organiser: Signer<'info>,
@@ -69,17 +101,32 @@ pub struct CreateCampaign<'info> {
         init,
         payer = organiser,
         space = Campaign::INIT_SPACE,
-        seeds = [b"campaign", organiser.key().as_ref()],
+        seeds = [
+            b"campaign",
+            organiser.key().as_ref(),
+            campaign_counter.count.to_le_bytes().as_ref(),
+        ],
         bump
     )]
     pub campaign: Account<'info, Campaign>,
 
     #[account(
-        seeds = [b"vault", organiser.key().as_ref()],
+        seeds = [
+            b"vault",
+            organiser.key().as_ref(),
+            campaign_counter.count.to_le_bytes().as_ref(),
+        ],
         bump,
     )]
     pub vault: SystemAccount<'info>,
     
+    #[account(
+        mut,
+        seeds = [b"campaign_counter"],
+        bump,
+    )]
+    pub campaign_counter: Account<'info, CampaignCounter>,
+
     pub system_program: Program<'info, System>,
 }
 
@@ -88,18 +135,26 @@ pub struct Donate<'info> {
     #[account(mut)]
     pub donor: Signer<'info>,
 
+
     #[account(
         mut,
-        has_one = organiser,
-        seeds = [b"campaign", organiser.key().as_ref()],
-        bump = campaign.vault_bump
+        seeds = [
+            b"campaign",
+            organiser.key().as_ref(),
+            campaign.id.to_le_bytes().as_ref(),
+        ],
+        bump
     )]
     pub campaign: Account<'info, Campaign>,
 
     #[account(
         mut,
-        seeds = [b"vault", organiser.key().as_ref()],
-        bump = campaign.vault_bump
+        seeds = [
+            b"vault",
+            organiser.key().as_ref(),
+            campaign.id.to_le_bytes().as_ref(),
+        ],
+        bump = campaign.vault_bump,
     )]
     pub vault: SystemAccount<'info>,
     
@@ -116,14 +171,22 @@ pub struct Withdraw<'info> {
     #[account(
         mut,
         has_one = organiser,
-        seeds = [b"campaign", organiser.key().as_ref()],
+        seeds = [
+            b"campaign",
+            organiser.key().as_ref(),
+            campaign.id.to_le_bytes().as_ref(),
+        ],
         bump,
     )]
     pub campaign: Account<'info, Campaign>,
 
     #[account(
         mut,
-        seeds = [b"vault", organiser.key().as_ref()],
+        seeds = [
+            b"vault",
+            organiser.key().as_ref(),
+            campaign.id.to_le_bytes().as_ref(),
+        ],
         bump = campaign.vault_bump,
     )]
     pub vault: SystemAccount<'info>,
@@ -134,6 +197,8 @@ pub struct Withdraw<'info> {
 #[account]
 #[derive(InitSpace)]
 pub struct Campaign {
+    // Unique identifier for the campaign
+    pub id: u64,
     // Wallet address of the organiser
     pub organiser: Pubkey,
     // Goal amount in lamports
@@ -145,10 +210,12 @@ pub struct Campaign {
     pub metadata: String,
     // Bump for the vault that holds the funds
     pub vault_bump: u8,
+    // Timestamp when the campaign was created
+    pub created_at: i64,
 }
 
 #[account]
 #[derive(InitSpace)]
 pub struct CampaignCounter {
-    pub count: u128,
+    pub count: u64,
 }
