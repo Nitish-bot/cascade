@@ -1,7 +1,9 @@
 pub mod constants;
+pub mod errors; 
 
 use anchor_lang::prelude::*;
 use constants::*;
+use errors::*;
 
 declare_id!("6LvLTeiy6JNitq1WGdGp75DvRBHKrmpMAREfYgoMMyGq");
 
@@ -29,6 +31,7 @@ pub mod cascade {
         campaign.metadata = metadata;
         campaign.vault_bump = ctx.bumps.vault;
         campaign.created_at = Clock::get()?.unix_timestamp;
+        campaign.status = CampaignStatus::Active;
 
         campaign_counter.count = campaign_counter.count.checked_add(1).unwrap();
 
@@ -56,19 +59,31 @@ pub mod cascade {
         Ok(())
     }
 
-    pub fn withdraw(ctx: Context<Withdraw>) -> Result<()> {
-        let campaign = &mut ctx.accounts.campaign;
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
         let organiser = &ctx.accounts.organiser;
+        let vault = &ctx.accounts.vault;
+        let campaign = &ctx.accounts.campaign;
+        
+        require!(**vault.lamports.borrow() >= amount, CascadeError::InsufficientFundsForWithdrawal);
+        
+        let organiser_key = organiser.key();
+        let id_bytes = campaign.id.to_le_bytes();
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            b"vault",
+            organiser_key.as_ref(),
+            id_bytes.as_ref(),
+            &[campaign.vault_bump],
+        ]];
 
         transfer(
             CpiContext::new(
                 ctx.accounts.system_program.to_account_info(),
                 Transfer {
-                    from: ctx.accounts.vault.to_account_info(),
+                    from: vault.to_account_info(),
                     to: organiser.to_account_info(),
                 }
-            ),
-            campaign.raised,
+            ).with_signer(signer_seeds),
+            amount,
         )?;
 
         Ok(())
@@ -134,7 +149,6 @@ pub struct CreateCampaign<'info> {
 pub struct Donate<'info> {
     #[account(mut)]
     pub donor: Signer<'info>,
-
 
     #[account(
         mut,
@@ -212,10 +226,19 @@ pub struct Campaign {
     pub vault_bump: u8,
     // Timestamp when the campaign was created
     pub created_at: i64,
+    // Status of the campaign
+    pub status: CampaignStatus,
 }
 
 #[account]
 #[derive(InitSpace)]
 pub struct CampaignCounter {
     pub count: u64,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, InitSpace)]
+pub enum CampaignStatus {
+    Active,
+    Completed,
+    Cancelled,
 }

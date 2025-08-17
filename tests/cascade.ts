@@ -16,6 +16,8 @@ describe("cascade", () => {
     program.programId,
   );
 
+  let sharedState: SharedCampaignState;
+
   before("Init Campaign Counter", async () => {
     await provider.connection.requestAirdrop(wallet.publicKey, 2 * web3.LAMPORTS_PER_SOL);
     
@@ -39,12 +41,40 @@ describe("cascade", () => {
     }
   })
 
-  it("creates a campaign", async () => {
-    const organiser = web3.Keypair.generate();
+  beforeEach("Create a new dummy campaign", async () => {
+    sharedState = await createCampaign(provider, program, ccPda);
+  })
 
+  it("creates a campaign", async () => {
+    console.log("Campaign created with ID:", sharedState.campaignId.toString());
+  })
+
+  it("donates to a campaign", async() => {
+    await donateToCampaign(provider, program, sharedState);
+  })
+
+  it("withdraws funds from a campaign", async () => {
+    let amount = new anchor.BN(web3.LAMPORTS_PER_SOL / 10); // 0.1 SOL
+    await donateToCampaign(provider, program, sharedState, amount);
+
+    const tx = await program.methods
+      .withdraw(amount) // Withdraw 0.1 SOL
+      .accounts({
+        organiser: sharedState.organiser.publicKey,
+        campaign: sharedState.campaign,
+        vault: sharedState.vault,
+        systemProgram: web3.SystemProgram.programId,
+      })
+      .signers([sharedState.organiser])
+      .rpc();
+  })
+});
+
+async function createAndFundAccount(provider: anchor.AnchorProvider, amount: number): Promise<web3.Keypair> {
+    let account = web3.Keypair.generate();
     const airdropSignature = await provider.connection.requestAirdrop(
-      organiser.publicKey,
-      2 * web3.LAMPORTS_PER_SOL // Requesting 2 SOL to be safe
+      account.publicKey,
+      amount * web3.LAMPORTS_PER_SOL // Requesting 2 SOL to be safe
     );
 
     const latestBlockhash = await provider.connection.getLatestBlockhash();
@@ -56,43 +86,106 @@ describe("cascade", () => {
       signature: airdropSignature,
     });
 
-    console.log("Airdrop confirmed!");
+    return account;
+}
 
-    const goal = new anchor.BN(web3.LAMPORTS_PER_SOL / 10);
-    const meta = "xyz.link";
+async function getCampaignAndVault(
+  program: Program<Cascade>,
+  organiser: web3.PublicKey,
+  campaignId: anchor.BN
+): Promise<{ campaign: web3.PublicKey; vault: web3.PublicKey }> {
+  let [campaign, _cBump] = await web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("campaign"),
+      organiser.toBuffer(),
+      campaignId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
 
-    const campaignCounter = await program.account.campaignCounter.fetch(ccPda);
+  const [vault, _vBump] = await web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("vault"),
+      organiser.toBuffer(),
+      campaignId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+  return { campaign: campaign, vault: vault };
+}
+
+// Creates a dummy capaign with 1 Sol goal
+async function createCampaign(
+  provider: anchor.AnchorProvider,
+  program: Program<Cascade>,
+  ccPda: web3.PublicKey): Promise<SharedCampaignState> {
+  const organiser = await createAndFundAccount(provider, 1);
+
+  const goal = new anchor.BN(web3.LAMPORTS_PER_SOL);
+  const meta = "xyz.link";
+
+  const campaignCounter = await program.account.campaignCounter.fetch(ccPda);
+  const campaignId = campaignCounter.count;
     
-    const campaignPda = await web3.PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("campaign"),
-        organiser.publicKey.toBuffer(),
-        campaignCounter.count.toArrayLike(Buffer, "le", 8),
-      ],
-      program.programId,
-    )
+  const { campaign, vault } = await getCampaignAndVault(
+    program,
+    organiser.publicKey,
+    campaignId
+  );
 
-    const vaultPda = await web3.PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("vault"),
-        organiser.publicKey.toBuffer(),
-        campaignCounter.count.toArrayLike(Buffer, "le", 8),
-      ],
-      program.programId,
-    )
+  const tx = await program.methods
+    .createCampaign(goal, meta)
+    .accounts({
+      organiser: organiser.publicKey,
+      campaign,
+      vault,
+      campaignCounter: ccPda,
+      systemProgram: web3.SystemProgram.programId,
+    })
+    .signers([organiser])
+    .rpc();
+  
+  let campaignState: SharedCampaignState = {
+    organiser: organiser,
+    campaignId: campaignId,
+    campaign: campaign,
+    vault: vault,
+    goal: goal,
+    meta: meta,
+  };
+
+  return campaignState;
+}
+
+async function donateToCampaign(
+  provider: anchor.AnchorProvider,
+  program: Program<Cascade>,
+  sharedState: SharedCampaignState,
+  amount: anchor.BN = new anchor.BN(web3.LAMPORTS_PER_SOL / 100) // Default to 0.01 SOL
+): Promise<void> {
+    const donor = await createAndFundAccount(provider, 1);
 
     const tx = await program.methods
-      .createCampaign(goal, meta)
+      .donate(amount)
       .accounts({
-        organiser: organiser.publicKey,
-        campaign: campaignPda,
-        vault: vaultPda,
-        campaignCounter: ccPda,
+        donor: donor.publicKey,
+        campaign: sharedState.campaign,
+        vault: sharedState.vault,
+        organiser: sharedState.organiser.publicKey,
         systemProgram: web3.SystemProgram.programId,
       })
-      .signers([organiser])
+      .signers([donor])
       .rpc();
     
-    console.log("Campaign created with tx:", tx);
-  })
-});
+    console.log("Donation transaction signature:", tx);
+}
+
+type SharedCampaignState = {
+  organiser: web3.Keypair,
+  campaignId: anchor.BN,
+  campaign: web3.PublicKey,
+  vault: web3.PublicKey,
+  goal: anchor.BN,
+  meta: string,
+}
