@@ -11,7 +11,7 @@ declare_id!("6LvLTeiy6JNitq1WGdGp75DvRBHKrmpMAREfYgoMMyGq");
 
 #[program]
 pub mod cascade {
-    use anchor_lang::{solana_program::native_token::LAMPORTS_PER_SOL, system_program::{transfer, Transfer}};
+    use anchor_lang::{solana_program::{clock::SECONDS_PER_DAY, native_token::LAMPORTS_PER_SOL}, system_program::{transfer, Transfer}};
 
     use super::*;
 
@@ -19,17 +19,48 @@ pub mod cascade {
         let campaign_counter = &mut ctx.accounts.campaign_counter;
         campaign_counter.count = 0;
 
+        let config = &mut ctx.accounts.config;
+        config.authority = ctx.accounts.signer.key();
+        config.treasury_pubkey = ctx.accounts.treasury.key();
+        config.min_goal = MIN_GOAL;
+        config.min_withdrawal = MIN_WITHDRAWAL;
+        config.platform_fee_bps = PLATFORM_FEE_BPS;
         Ok(())
     }
 
-    pub fn create_campaign(ctx: Context<CreateCampaign>, goal: u64, metadata: String) -> Result<()> {
+    pub fn update_config(
+        ctx: Context<UpdateConfig>,
+        new_authority: Option<Pubkey>,
+        new_treasury_pubkey: Option<Pubkey>,
+        new_min_goal: Option<u64>,
+        new_min_withdrawal: Option<u64>,
+        new_platform_fee_bps: Option<u64>,
+    ) -> Result<()> {
+        let config = &mut ctx.accounts.config;
+        
+        require!(ctx.accounts.authority.key() == config.authority, CascadeError::UnauthorizedAction); // Ensure fee is not more than 100%
+        
+        config.authority = new_authority.unwrap_or(config.authority);
+        config.treasury_pubkey = new_treasury_pubkey.unwrap_or(config.treasury_pubkey);
+        config.min_goal = new_min_goal.unwrap_or(config.min_goal);
+        config.min_withdrawal = new_min_withdrawal.unwrap_or(config.min_withdrawal);
+        config.platform_fee_bps = new_platform_fee_bps.unwrap_or(config.platform_fee_bps);
+        Ok(())
+    }
+
+    pub fn create_campaign(ctx: Context<CreateCampaign>, goal: u64, metadata: String, deadline: i64) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         let campaign_counter = &mut ctx.accounts.campaign_counter;
 
-        let min_goal = MIN_GOAL; // 0.05 SOL
-        let metadata_len = campaign.metadata.len();
+        let min_goal = ctx.accounts.config.min_goal;
         require!(goal > min_goal, CascadeError::InsufficientGoal);
+        
+        let metadata_len = campaign.metadata.len();
         require!(metadata_len <= 128, CascadeError::MetadataTooLong);
+        
+        let current_time = Clock::get()?.unix_timestamp;
+        require!(deadline > current_time, CascadeError::DeadlineInPast);
+        require!(deadline > current_time + SECONDS_PER_DAY as i64, CascadeError::DeadlineTooSoon);
 
         campaign.id = campaign_counter.count;
         campaign.organiser = ctx.accounts.organiser.key();
@@ -38,9 +69,10 @@ pub mod cascade {
         campaign.metadata = metadata;
         campaign.vault_bump = ctx.bumps.vault;
         campaign.created_at = Clock::get()?.unix_timestamp;
+        campaign.deadline = deadline;
         campaign.status = CampaignStatus::Active;
 
-        campaign_counter.count = campaign_counter.count.checked_add(1).unwrap();
+        campaign_counter.count = campaign_counter.count.checked_add(1).ok_or(CascadeError::CounterOverflow)?;
 
         Ok(())
     }
@@ -48,9 +80,13 @@ pub mod cascade {
     pub fn donate(ctx: Context<Donate>, amount: u64) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         let donor = &ctx.accounts.donor;
-        
-        let platfee = PLATFORM_FEE_PERCENT;
-        let fee = amount.checked_mul(platfee / 100).ok_or(CascadeError::FeeCalculationOverflow)?;
+
+        let platfee = ctx.accounts.config.platform_fee_bps;
+        let fee = amount
+            .checked_mul(platfee)
+            .ok_or(CascadeError::FeeCalculationOverflow)?
+            .checked_div(10_000)
+            .ok_or(CascadeError::FeeCalculationOverflow)?;
         let donation = amount.checked_sub(fee).ok_or(CascadeError::InsufficientFundsForDonation)?;
 
         transfer(
@@ -58,7 +94,7 @@ pub mod cascade {
                 ctx.accounts.system_program.to_account_info(),
                 Transfer {
                     from: donor.to_account_info(),
-                    to: ctx.accounts.vault.to_account_info(),
+                    to: ctx.accounts.treasury.to_account_info(),
                 }
             ),
             fee,
@@ -72,10 +108,10 @@ pub mod cascade {
                     to: ctx.accounts.vault.to_account_info(),
                 }
             ),
-            amount,
+            donation,
         )?;
 
-        campaign.raised = campaign.raised.checked_add(amount).unwrap();
+        campaign.raised = campaign.raised.checked_add(amount).ok_or(CascadeError::RaisedOverflow)?;
 
         Ok(())
     }
@@ -87,9 +123,9 @@ pub mod cascade {
 
         let current_balance = **vault.lamports.borrow();
         let rent_exempt = Rent::get()?.minimum_balance(vault.data_len());
-        
+        let remaining_balance = current_balance.checked_sub(amount).ok_or(CascadeError::WithdrawalAmountExceedsBalance)?;
         require!(current_balance >= LAMPORTS_PER_SOL / 100, CascadeError::InsufficientFundsForWithdrawal);
-        require!(current_balance - amount >= rent_exempt, CascadeError::VaultBelowRentExempt);
+        require!(remaining_balance >= rent_exempt, CascadeError::VaultBelowRentExempt);
         
         let organiser_key = organiser.key();
         let id_bytes = campaign.id.to_le_bytes();
@@ -129,7 +165,32 @@ pub struct Initialize<'info> {
     )]
     pub campaign_counter: Account<'info, CampaignCounter>,
 
+    #[account(
+        init,
+        payer = signer,
+        space = 8 + Config::INIT_SPACE,
+        seeds = [b"config"],
+        bump
+    )]
+    pub config: Account<'info, Config>,
+
+    /// CHECK: This is a
+    pub treasury: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct UpdateConfig<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+
+    #[account(
+        mut,
+        has_one = authority,
+        seeds = [b"config"],
+        bump
+    )]
+    pub config: Account<'info, Config>,
 }
 
 #[derive(Accounts)]
@@ -167,6 +228,12 @@ pub struct CreateCampaign<'info> {
     )]
     pub campaign_counter: Account<'info, CampaignCounter>,
 
+    #[account(
+        seeds = [b"config"],
+        bump
+    )]
+    pub config: Account<'info, Config>,
+
     pub system_program: Program<'info, System>,
 }
 
@@ -177,6 +244,7 @@ pub struct Donate<'info> {
 
     #[account(
         mut,
+        has_one = organiser,
         seeds = [
             b"campaign",
             organiser.key().as_ref(),
@@ -196,6 +264,19 @@ pub struct Donate<'info> {
         bump = campaign.vault_bump,
     )]
     pub vault: SystemAccount<'info>,
+
+    #[account(
+        seeds = [b"config"],
+        bump
+    )]
+    pub config: Account<'info, Config>,
+
+    #[account(
+        mut,
+        address = config.treasury_pubkey @ CascadeError::UnauthorizedAction,
+    )]
+    /// CHECK: address is checked against config.treasury_pubkey
+    pub treasury: UncheckedAccount<'info>,
     
     /// CHECK: has_one constraint ensures the organiser passed is the creator
     pub organiser: UncheckedAccount<'info>,
@@ -251,6 +332,8 @@ pub struct Campaign {
     pub vault_bump: u8,
     // Timestamp when the campaign was created
     pub created_at: i64,
+    // Deadline for the campaign
+    pub deadline: i64,
     // Status of the campaign
     pub status: CampaignStatus,
 }
@@ -259,6 +342,21 @@ pub struct Campaign {
 #[derive(InitSpace)]
 pub struct CampaignCounter {
     pub count: u64,
+}
+
+#[account]
+#[derive(InitSpace)]
+pub struct Config {
+    // Authority of the program
+    pub authority: Pubkey,
+    // Treasury wallet address
+    pub treasury_pubkey: Pubkey,
+    // Minimum goal for a campaign in lamports (0.05 SOL)
+    pub min_goal: u64,
+    // Minimum withdrawal amount in lamports (0.01 SOL)
+    pub min_withdrawal: u64,
+    // Platform fee in basis points (200 = 2%)
+    pub platform_fee_bps: u64,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, InitSpace)]
