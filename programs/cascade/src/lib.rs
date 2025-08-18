@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 pub mod constants;
 pub mod errors; 
 
@@ -9,7 +11,7 @@ declare_id!("6LvLTeiy6JNitq1WGdGp75DvRBHKrmpMAREfYgoMMyGq");
 
 #[program]
 pub mod cascade {
-    use anchor_lang::system_program::{transfer, Transfer};
+    use anchor_lang::{solana_program::native_token::LAMPORTS_PER_SOL, system_program::{transfer, Transfer}};
 
     use super::*;
 
@@ -23,6 +25,11 @@ pub mod cascade {
     pub fn create_campaign(ctx: Context<CreateCampaign>, goal: u64, metadata: String) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         let campaign_counter = &mut ctx.accounts.campaign_counter;
+
+        let min_goal = MIN_GOAL; // 0.05 SOL
+        let metadata_len = campaign.metadata.len();
+        require!(goal > min_goal, CascadeError::InsufficientGoal);
+        require!(metadata_len <= 128, CascadeError::MetadataTooLong);
 
         campaign.id = campaign_counter.count;
         campaign.organiser = ctx.accounts.organiser.key();
@@ -41,7 +48,21 @@ pub mod cascade {
     pub fn donate(ctx: Context<Donate>, amount: u64) -> Result<()> {
         let campaign = &mut ctx.accounts.campaign;
         let donor = &ctx.accounts.donor;
-        let platfee = PLATFORM_FEE_BPS;
+        
+        let platfee = PLATFORM_FEE_PERCENT;
+        let fee = amount.checked_mul(platfee / 100).ok_or(CascadeError::FeeCalculationOverflow)?;
+        let donation = amount.checked_sub(fee).ok_or(CascadeError::InsufficientFundsForDonation)?;
+
+        transfer(
+            CpiContext::new(
+                ctx.accounts.system_program.to_account_info(),
+                Transfer {
+                    from: donor.to_account_info(),
+                    to: ctx.accounts.vault.to_account_info(),
+                }
+            ),
+            fee,
+        )?;
 
         transfer(
             CpiContext::new(
@@ -63,8 +84,12 @@ pub mod cascade {
         let organiser = &ctx.accounts.organiser;
         let vault = &ctx.accounts.vault;
         let campaign = &ctx.accounts.campaign;
+
+        let current_balance = **vault.lamports.borrow();
+        let rent_exempt = Rent::get()?.minimum_balance(vault.data_len());
         
-        require!(**vault.lamports.borrow() >= amount, CascadeError::InsufficientFundsForWithdrawal);
+        require!(current_balance >= LAMPORTS_PER_SOL / 100, CascadeError::InsufficientFundsForWithdrawal);
+        require!(current_balance - amount >= rent_exempt, CascadeError::VaultBelowRentExempt);
         
         let organiser_key = organiser.key();
         let id_bytes = campaign.id.to_le_bytes();
