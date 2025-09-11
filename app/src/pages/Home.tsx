@@ -1,8 +1,14 @@
-import Nav from '@/components/shared/Nav';
+import Nav from '@/components/sections/Nav';
+import Hero from '@/components/sections/Hero';
+import Why from '@/components/sections/Why';
 
 function Home() {
     return (
-        <Nav/>
+      <>
+        <Nav />
+        <Hero />
+        <Why />
+      </>
     )
 }
 
