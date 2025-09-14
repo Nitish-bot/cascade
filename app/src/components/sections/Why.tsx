@@ -1,10 +1,81 @@
+import middlemen from "@/assets/middlemen.svg";
+import transparency from "@/assets/transparency.svg";
+import fast from "@/assets/fast.svg";
+import censorship from "@/assets/censorship.svg";
+import lowfee from "@/assets/lowfee.svg";
+
+import Star8 from "@/components/assets/star-8";
+import Star9 from "@/components/assets/star-9";
+import Star21 from "@/components/assets/star-21";
+
+import { Button } from "@/components/ui/button";
+
+const contents = [
+  {
+    "title": "No Middlemen",
+    "description": "Funds move directly between supporters and causes - no overseers and approvers.",
+    "icon": middlemen,
+  },
+  {
+    "title": "Transparent by Design",
+    "description": "Every contribution is visible on the blockchain, so you always know where money flows.",
+    "icon": transparency,
+  },
+  {
+    "title": "Fast and Reliable",
+    "description": "Solana's lightning-quick processing ensures support reaches causes in seconds, not days.",
+    "icon": fast,
+  },
+  {
+    "title": "Censorship Resistant",
+    // "description": "Campaigns can't be silenced or frozen, giving every cause a fair chance to be heard.",
+    "icon": censorship,
+  },
+  {
+    "title": "Mininmal Fees",
+    "description": "We only charge a tiny fee to keep the platform running, ensuring that the causes get the most of your support.",
+    "icon": lowfee,
+  },
+]
+
+const cards = contents.map((content, index) => {
+  const grid_number = `box-${index + 1}`;
+  {/* /// !USEFUL!  -  The grid area style right here is the indentifier for css */}
+  return <Button 
+    style={{gridArea: grid_number}}
+    className={grid_number + " box whitespace-normal p-4 border-[var(--light-border)] hover:border-border transition-all duration-200"}
+    size="freeform"
+    variant={"reverse"}>
+    <div className="text-left flex h-full justify-between items-center">
+      <div className="card-text self-center">
+        <h1 className="text-2xl font-bold leading-snug tracking-wide break-words">{content.title}</h1>
+        <p className="text-lg text-gray-800 leading-snug break-words">{content.description}</p>
+      </div>    
+      <img src={content.icon} alt={content.title + " icon"} className="card-icon h-24 opacity-85 self-center"/>
+    </div>
+  </Button>
+});
+
 function Why () {
     return (
-      <>
-        <div className="h-[100vh] flex justify-center items-center">
-          <h1 className="text-4xl font-bold">Why R(A)ISE?</h1>
+      <div className="min-h-[100vh] relative">
+        <Star9 className="absolute w-[32vh] left-[0%] -translate-x-1/2 -translate-y-1/2"/>
+        
+        <div className="relative z-10 text-center pt-16 px-4">
+            <h2 className="text-4xl md:text-6xl font-extrabold text-foreground mb-6">
+                Why <span className="text-main">CASCADE</span>?
+            </h2>
         </div>
-      </>
+
+        <div className="flex justify-center items-center w-full pt-8">
+          <div id="features-grid-container" className="grid grid-cols-[200px_200px_200px] grid-rows-[200px_200px_200px] gap-8">
+            {cards}
+          </div>
+        </div>
+
+        <Star8 className="z-20 hidden lg:block absolute w-24 h-24 top-16 right-8 xl:right-[16%] text-border opacity-30 rotate-16" />
+        <Star21 className="z-20 hidden lg:block absolute w-32 h-32 bottom-16 left-8 xl:left-[16%] text-border opacity-30 -rotate-8" />
+      </div>
     )
 }
 

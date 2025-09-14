@@ -1,18 +1,18 @@
 import hero from '@/assets/hero.svg';
+import { Button } from '../ui/button';
 
 const hero_para = `
-Transparent and secure funding for all.
-Leverage the solana blockchain technology to raise funds for your causes, 
-without intermediaries.
+Leverage the solana blockchain technology to raise funds 
+for your causes, without intermediaries.
 `;
 
 function Hero() {
   return (
-  <main className="hero p-4 h-[100vh] w-full overflow-hidden">
-      <div className="text-left items-center w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto">
-        <div className="flex gap-[16vw] justify-between items-center mx-4 mt-[8vh] py-16">
+  <main className="hero p-4 min-h-[100vh] w-full overflow-hidden">
+      <div className="text-left flex flex-col items-center w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto">
+        <div className="flex w-full justify-between items-center mx-4 mt-[8vh] py-16">
 
-          <h1 className="text-[2.25rem] md:text-[3.5rem] leading-tight font-extrabold">
+          <h1 className="text-[2.75rem] md:text-[3.5rem] leading-tight font-extrabold">
             R(A)ISE
             <br />
 
@@ -22,9 +22,14 @@ function Hero() {
               </span>
             </span>
           </h1>
-          <p className="w-[32vw] text-right">{hero_para}</p>
-        </div>
+          <div className="flex flex-col items-end gap-4 max-w-[32vw] lg:max-w-[24vw] text-right">
+            <p className="font-semibold">{hero_para}</p>
+            <Button size={"lg"} className="text-md font-bold px-4">
+              <span className="mt-1">Create a fundraiser</span>
+            </Button>  
+          </div>
 
+        </div>
         <div className="flex justify-center mt-[6vh] xl:mt-[2vh]">
           <img src={hero} className="w-[64vw] lg:w-[48vw] xl:w-[36vw]"></img>
         </div>

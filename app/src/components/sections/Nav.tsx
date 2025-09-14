@@ -15,20 +15,22 @@ function Nav() {
         </div>
 
         <nav className="hidden md:block space-x-4">
-          <Link to="/donate" className="font-semibold hover:bg-yellow-500 p-2">
+          <Link to="/donate" className="p-2 relative group">
             {/* <img src={donate} alt="Donate" className="inline h-5 mr-1 mb-1" /> */}
             Donate
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-main-foreground transition-all duration-300 group-hover:w-full"></span>
           </Link>
-          <Link to="/raise" className="font-semibold p-2">
+          <Link to="/raise" className="p-2 relative group">
             Raise
+            <span className="absolute bottom-0 right-0 w-0 h-0.5 bg-main-foreground transition-all duration-300 group-hover:w-full"></span>
           </Link>
         </nav>
 
         <div className="hidden md:inline pb-1 font-black">
           <Link to="/login">
-            <Button size="sm">
+            <Button size="sm" variant="noShadow" className="hover:bg-[var(--main-dark)]">
               <img src={wallet} alt="Wallet" className="inline h-5 mr-1" />
-              Connect Wallet
+              <p className="mt-1">Connect Wallet</p>
             </Button>
           </Link>
         </div>

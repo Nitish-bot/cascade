@@ -5,14 +5,17 @@
 
 :root {
   --background: oklch(95.08% 0.0481 184.07);
-  --secondary-background: oklch(100% 0 0);
+  --secondary-background: oklch(100% 0.00011 271.152);
   --foreground: oklch(0% 0 0);
   --main-foreground: oklch(0% 0 0);
   --main: oklch(78.57% 0.1422 180.36);
+  --main-dark: oklch(75.57% 0.1422 180.36);
   --border: oklch(0.2414 0.042659 184.4704);
+  --light-border: oklch(from var(--border) l c h / 0.5);
   --ring: oklch(0% 0 0);
   --overlay: oklch(0% 0 0 / 0.8);
-  --shadow: 2px 4px 0px 0px var(--border);
+  --shadow: 4px 4px 0px 0px var(--border);
+  --light-shadow: 4px 4px 0px 0px var(--light-border);
   --chart-1: #00D6BD;
   --chart-2: #0099FF;
   --chart-3: #7A83FF;
