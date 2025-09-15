@@ -1,16 +1,17 @@
 import Nav from '@/components/sections/Nav';
 import Hero from '@/components/sections/Hero';
 import Why from '@/components/sections/Why';
-import Why2 from '@/components/sections/Why2';
+import Footer from '@/components/sections/Footer';
 
 function Home() {
-    return (
-      <>
-        <Nav />
-        <Hero />
-        <Why />
-      </>
-    )
+  return (
+    <>
+      <Nav />
+      <Hero />
+      <Why />
+      <Footer />
+    </>
+  );
 }
 
-export default Home
+export default Home;

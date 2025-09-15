@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -16,11 +16,11 @@
   --overlay: oklch(0% 0 0 / 0.8);
   --shadow: 4px 4px 0px 0px var(--border);
   --light-shadow: 4px 4px 0px 0px var(--light-border);
-  --chart-1: #00D6BD;
-  --chart-2: #0099FF;
-  --chart-3: #7A83FF;
-  --chart-4: #FF4D50;
-  --chart-5: #FACC00;
+  --chart-1: #00d6bd;
+  --chart-2: #0099ff;
+  --chart-3: #7a83ff;
+  --chart-4: #ff4d50;
+  --chart-5: #facc00;
   --chart-active-dot: #000;
 }
 
@@ -33,11 +33,11 @@
   --border: oklch(0% 0 0);
   --ring: oklch(100% 0 0);
   --shadow: 2px 4px 0px 0px var(--border);
-  --chart-1: #00BDA7;
-  --chart-2: #008AE5;
-  --chart-3: #7A83FF;
-  --chart-4: #FF6669;
-  --chart-5: #E0B700;
+  --chart-1: #00bda7;
+  --chart-2: #008ae5;
+  --chart-3: #7a83ff;
+  --chart-4: #ff6669;
+  --chart-5: #e0b700;
   --chart-active-dot: #fff;
 }
 
@@ -65,13 +65,18 @@
   --font-weight-base: 500;
   --font-weight-heading: 700;
 }
-  
+
 @layer base {
   body {
     @apply text-foreground font-base bg-background;
   }
 
-  h1, h2, h3, h4, h5, h6{
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading;
   }
 }

@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import Home from '@/pages/Home';
-import '@/App.css'
+import '@/App.css';
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
         <Route path='/' element={<Home />} />
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
