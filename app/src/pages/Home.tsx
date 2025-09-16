@@ -1,6 +1,8 @@
 import Nav from '@/components/sections/Nav';
 import Hero from '@/components/sections/Hero';
 import Why from '@/components/sections/Why';
+import How from '@/components/sections/How';
+import FAQs from '@/components/sections/FAQs';
 import Footer from '@/components/sections/Footer';
 
 function Home() {
@@ -9,6 +11,8 @@ function Home() {
       <Nav />
       <Hero />
       <Why />
+      <How />
+      <FAQs />
       <Footer />
     </>
   );

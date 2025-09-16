@@ -8,7 +8,7 @@ for your causes, without intermediaries.
 
 function Hero() {
   return (
-    <main className='hero p-4 min-h-[100vh] w-full overflow-hidden'>
+    <main className='hero p-4 min-h-[100vh] w-full bg-grid'>
       <div className='text-left flex flex-col items-center w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto'>
         <div className='flex w-full justify-between items-center mx-4 mt-[8vh] py-16'>
           <h1 className='text-[2.75rem] md:text-[3.5rem] leading-tight font-extrabold'>

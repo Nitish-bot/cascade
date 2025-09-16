@@ -4,9 +4,7 @@ import fast from '@/assets/fast.svg';
 import censorship from '@/assets/censorship.svg';
 import lowfee from '@/assets/lowfee.svg';
 
-import Star8 from '@/components/assets/star-8';
 import Star9 from '@/components/assets/star-9';
-import Star21 from '@/components/assets/star-21';
 
 import { Button } from '@/components/ui/button';
 
@@ -79,9 +77,9 @@ const cards = contents.map((content, index) => {
 function Why() {
   return (
     <div className='why min-h-[100vh] relative'>
-      <Star9 className='absolute w-[32vh] left-[0%] -translate-x-1/2 -translate-y-1/2' />
+      <Star9 className='absolute w-[32vh] left-0 top-0 -translate-x-1/2 -translate-y-1/2' />
 
-      <div className='relative z-10 text-center pt-16 px-4'>
+      <div className='relative z-10 text-center pt-16 w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto'>
         <h2 className='text-4xl md:text-6xl font-extrabold text-border mb-6'>
           Why{' '}
           <span className='text-border underline decoration-main'>CASCADE</span>
@@ -97,9 +95,6 @@ function Why() {
           {cards}
         </div>
       </div>
-
-      <Star8 className='z-20 hidden lg:block absolute w-24 h-24 top-16 right-8 xl:right-[12%] xxl:right-[16%] text-border opacity-30 rotate-16' />
-      <Star21 className='z-20 hidden lg:block absolute w-32 h-32 bottom-16 left-8 xl:left-[12%] xxl:left-[16%] text-border opacity-30 -rotate-8' />
     </div>
   );
 }
