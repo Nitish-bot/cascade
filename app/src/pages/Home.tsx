@@ -12,7 +12,7 @@ function Home() {
       <Hero />
       <Why />
       <How />
-      <FAQs />
+      {/* <FAQs /> */}
       <Footer />
     </>
   );
