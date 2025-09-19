@@ -1,5 +1,6 @@
 import hero from '@/assets/hero.svg';
 import { Button } from '../ui/button';
+import { Link } from 'react-router-dom';
 
 const hero_para = `
 Leverage the solana blockchain technology to raise funds 
@@ -25,9 +26,11 @@ function Hero() {
           </h1>
           <div className='flex flex-col items-end gap-4 max-w-[32vw] lg:max-w-[24vw] text-right'>
             <p className='font-semibold'>{hero_para}</p>
-            <Button size={'lg'} className='text-lg font-bold px-4'>
-              <span className='mt-1'>Create a fundraiser</span>
-            </Button>
+            <Link to="/raise" className='flex items-center'>
+              <Button size={'lg'} className='text-lg font-bold px-4 cursor-pointer'>
+                <span className='mt-1'>Create a fundraiser</span>
+              </Button>
+            </Link>
           </div>
         </div>
         <div className='flex justify-center mt-[6vh] xl:mt-[2vh]'>

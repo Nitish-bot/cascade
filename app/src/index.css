@@ -22,6 +22,7 @@
   --chart-4: #ff4d50;
   --chart-5: #facc00;
   --chart-active-dot: #000;
+  --accentt: oklch(84.488% 0.09708 312.514);
 }
 
 .dark {

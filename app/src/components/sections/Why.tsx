@@ -54,6 +54,7 @@ const cards = contents.map((content, index) => {
       }
       size='freeform'
       variant={'reverse'}
+      key={index}
     >
       <div className='text-left flex h-full justify-between items-center m-3'>
         <div className='card-text self-center'>

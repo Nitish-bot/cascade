@@ -46,7 +46,7 @@ const faqs = [
 const faqItems = faqs.map((faq, index) => {
   const ident = `item-${index + 1}`;
   return <AccordionItem value={ident} key={index} id={ident} className="my-2 ">
-    <AccordionTrigger className="font-semibold tracking-wide"><span className="mt-1">{faq.q}</span></AccordionTrigger>
+    <AccordionTrigger className="accord-trig font-semibold tracking-wide"><span className="mt-1">{faq.q}</span></AccordionTrigger>
     <AccordionContent className="text-left text-[2rem] text-base">{faq.a}</AccordionContent>
   </AccordionItem>;
 });

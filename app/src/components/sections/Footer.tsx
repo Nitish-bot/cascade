@@ -14,8 +14,8 @@ function Footer() {
           <div className="flex flex-col justify-between max-w-[600px] lg:max-w-[700px] text-left p-6">
             <div className="mb-6">
               <img src={logo} alt="Cascade Logo" className="h-8 mb-6" />
-              <p className="text-foreground text-lg leading-snug tracking-wide">
-                Transparent and secure funding for all.              </p>
+              <p className="text-foreground text-lg leading-snug tracking-wide font-semibold">
+                Transparent and secure funding for all.</p>
             </div>
             <div className="flex gap-4 mt-4">
               <Button size="icon">
@@ -78,7 +78,7 @@ function Footer() {
 
         {/* Bottom section - also a grid-like element */}
         <div className="p-3">
-          <div className="flex flex-col justify-center items-center gap-4 text-foreground text-lg font-bold px-4 py-1">
+          <div className="flex flex-col justify-center items-center gap-4 text-foreground text-lg font-semibold px-4 py-1">
             <span>© 2024 Cascade. All rights reserved</span>
             <span>Made with ❤️ in India.</span>
           </div>

@@ -101,3 +101,16 @@
   margin-left: calc(12 * var(--spacing));
   margin-right: calc(2 * var(--spacing));
 }
+
+.button-holder i {
+  visibility: hidden !important;
+  position: absolute;
+}
+
+.card {
+  display: none;
+}
+
+.card-active {
+  display: block;
+}

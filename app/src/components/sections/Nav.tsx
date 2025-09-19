@@ -1,10 +1,14 @@
-import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo-black.svg';
 import hamburger from '@/assets/hamburger.svg';
-import wallet from '@/assets/wallet.svg';
+// import wallet from '@/assets/wallet.svg';
+
+import { useState } from 'react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 function Nav() {
+  const [hover, setHover] = useState(false);
+
   return (
     <header
       className='absolute z-50 top-[2%] inset-x-0 left-1/2 -translate-x-1/2 flex justify-between items-center bg-main 
@@ -16,7 +20,7 @@ function Nav() {
         </Link>
       </div>
 
-      <nav className='hidden md:block space-x-4'>
+      <nav className='hidden md:block space-x-4 tracking-wide'>
         <Link to='/donate' className='p-2 relative group'>
           {/* <img src={donate} alt="Donate" className="inline h-5 mr-1 mb-1" /> */}
           Donate
@@ -28,17 +32,28 @@ function Nav() {
         </Link>
       </nav>
 
-      <div className='hidden md:inline pb-1 font-black'>
-        <Link to='/login'>
-          <Button
-            size='sm'
-            variant='noShadow'
-            className='hover:bg-[var(--main-dark)]'
-          >
-            <img src={wallet} alt='Wallet' className='inline h-5 mr-1' />
-            <p className='mt-1'>Connect Wallet</p>
-          </Button>
-        </Link>
+      {/* All this tomfoolery is to give the button a hover effect */}
+      <div className='hidden md:inline font-black button-holder'
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+      >
+        <WalletMultiButton
+         style={{
+            backgroundColor: hover ? 'var(--background)' : 'var(--main)',
+            border: '2px solid var(--border)',
+            borderRadius: '10px',
+            padding: '1rem 1rem 0.85rem 1rem',
+            fontFamily: 'inherit',
+            fontWeight: 500,
+            lineHeight: '.25rem',
+            height: 'auto',
+            color: 'var(--border)',
+            transition: 'all 0.3s ease'
+        }}
+        >
+          {/* <img src={wallet} alt='Wallet' className='inline h-5 mr-1' />
+          <span className='mt-1'>Connect Wallet</span> */}
+        </WalletMultiButton>
       </div>
 
       <div className='md:hidden block border-2 rounded-md p-1'>
