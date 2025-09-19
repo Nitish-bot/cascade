@@ -1,0 +1,44 @@
+name: Continuous integration
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Install Solana
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
+          export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
+          solana --version
+
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start local validator
+        run: |
+          solana-test-validator --reset --quiet &
+          sleep 5
+
+      - name: Setup wallet
+        run: |
+          echo "$CI_CD_WALLET" > ci-wallet.json
+
+      - name: Run Anchor tests
+        run: |
+          export ANCHOR_PROVIDER_URL=http://127.0.0.1:8899
+          export ANCHOR_WALLET=$PWD/ci-wallet.json
+          anchor test --skip-local-validator
