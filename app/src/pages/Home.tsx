@@ -9,14 +9,14 @@ import { useMemo } from 'react';
 
 import {
   ConnectionProvider,
-  WalletProvider
+  WalletProvider,
 } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 // import { connect } from 'solana-kite';
 
-const DEVNET = "https://api.devnet.solana.com/";
+const DEVNET = 'https://api.devnet.solana.com/';
 // const MAINNET = "https://api.mainnet-beta.solana.com/";
 
 function Home() {

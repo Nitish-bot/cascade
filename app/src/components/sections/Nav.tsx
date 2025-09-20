@@ -33,12 +33,13 @@ function Nav() {
       </nav>
 
       {/* All this tomfoolery is to give the button a hover effect */}
-      <div className='hidden md:inline font-black button-holder'
+      <div
+        className='hidden md:inline font-black button-holder'
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >
         <WalletMultiButton
-         style={{
+          style={{
             backgroundColor: hover ? 'var(--background)' : 'var(--main)',
             border: '2px solid var(--border)',
             borderRadius: '10px',
@@ -48,8 +49,8 @@ function Nav() {
             lineHeight: '.25rem',
             height: 'auto',
             color: 'var(--border)',
-            transition: 'all 0.3s ease'
-        }}
+            transition: 'all 0.3s ease',
+          }}
         >
           {/* <img src={wallet} alt='Wallet' className='inline h-5 mr-1' />
           <span className='mt-1'>Connect Wallet</span> */}

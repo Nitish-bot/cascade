@@ -26,8 +26,11 @@ function Hero() {
           </h1>
           <div className='flex flex-col items-end gap-4 max-w-[32vw] lg:max-w-[24vw] text-right'>
             <p className='font-semibold'>{hero_para}</p>
-            <Link to="/raise" className='flex items-center'>
-              <Button size={'lg'} className='text-lg font-bold px-4 cursor-pointer'>
+            <Link to='/raise' className='flex items-center'>
+              <Button
+                size={'lg'}
+                className='text-lg font-bold px-4 cursor-pointer'
+              >
                 <span className='mt-1'>Create a fundraiser</span>
               </Button>
             </Link>

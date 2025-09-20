@@ -9,9 +9,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node"],
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "esModuleInterop": true
+    // "types": ["node"],
+    // "moduleResolution": "node",
   }
 }
