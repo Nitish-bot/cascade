@@ -1,0 +1,57 @@
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+
+import CountriesDropdown from '@/pages/raise/CountriesDropdown';
+import DeadlinePicker from '@/pages/raise/DeadlinePicker';
+import type { FormInfo } from '@/pages/raise/formSchemas';
+
+function formItems(form: any, formInfo: FormInfo[]) {
+  return formInfo.map((info) => (
+    <FormField
+      key={info.field}
+      control={form.control}
+      name={info.field}
+      render={({ field }) => {
+        return (
+          <FormItem>
+            <FormDescription>{info.description}</FormDescription>
+            <FormMessage />
+            <FormControl>
+              {info.field === 'country' ? (
+                <CountriesDropdown field={field} info={info} />
+              ) : info.field === 'deadline' ? (
+                <DeadlinePicker />
+              ) : info.field === 'story' ? (
+                <Textarea placeholder={info.placeholder} {...field} />
+              ) : info.field === 'image' ? (
+                <Input
+                  type='file'
+                  accept='image/jpeg,image/jpg,image/png,image/gif,image/webp'
+                  onChange={(e) => field.onChange(e.target.files)}
+                  // Don't spread field for file inputs
+                  className='border-0 border-b-1 rounded-none bg-white'
+                />
+              ) : (
+                <Input
+                  type={info.field === 'goal' ? 'number' : 'text'}
+                  className='border-0 border-b-1 rounded-none bg-white'
+                  placeholder={info.placeholder}
+                  {...field}
+                />
+              )}
+            </FormControl>
+          </FormItem>
+        );
+      }}
+    />
+  ));
+};
+
+export default formItems;
