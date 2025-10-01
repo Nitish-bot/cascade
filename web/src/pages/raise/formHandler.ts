@@ -4,13 +4,17 @@ import { uploadImage } from '@/appwrite/storage';
 
 import { type Fundraiser, type FormData } from '@/lib/types';
 
-import BN from 'bn.js';
+import { BN } from 'bn.js';
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 
 import { type Program } from '@coral-xyz/anchor';
-import { type Cascade } from 'target/types/cascade'
+import { type Cascade } from 'target/types/cascade';
 
-async function submitRaiser(program: Program<Cascade>, organiserPubkey: PublicKey, data: FormData) {
+async function submitRaiser(
+  program: Program<Cascade>,
+  organiserPubkey: PublicKey,
+  data: FormData,
+) {
   try {
     const fileId = ID.unique();
     const rowId = ID.unique();
@@ -26,7 +30,7 @@ async function submitRaiser(program: Program<Cascade>, organiserPubkey: PublicKe
     if (isNaN(goal)) {
       throw new Error('Invalid goal amount');
     }
-    
+
     const rowData = {
       beneficiaryName: data.name,
       beneficiaryEmail: data.email,
@@ -40,17 +44,17 @@ async function submitRaiser(program: Program<Cascade>, organiserPubkey: PublicKe
       completed: false,
     } as Fundraiser;
 
-
     const rustGoal = new BN(Math.floor(goal * LAMPORTS_PER_SOL));
     const rustDate = new BN(Math.floor(data.deadline.getTime() / 1000));
 
     const [campaignCounter] = PublicKey.findProgramAddressSync(
-    [Buffer.from("campaign_counter")],
-    program.programId
+      [Buffer.from('campaign_counter')],
+      program.programId,
     );
 
-    const counterAccount = await program.account.campaignCounter.fetchNullable(campaignCounter);
-    const count = new BN(counterAccount? counterAccount.count : -1);
+    const counterAccount =
+      await program.account.campaignCounter.fetchNullable(campaignCounter);
+    const count = new BN(counterAccount ? counterAccount.count : -1);
     console.log('count', count.toString());
     if (count.eq(new BN(-1))) {
       throw new Error('Program not initialized');
@@ -59,47 +63,33 @@ async function submitRaiser(program: Program<Cascade>, organiserPubkey: PublicKe
     const countBuffer = count.toArrayLike(Buffer, 'le', 8);
 
     const [campaign] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("campaign"),
-      organiserPubkey.toBuffer(),
-      countBuffer
-    ],
-    program.programId
+      [Buffer.from('campaign'), organiserPubkey.toBuffer(), countBuffer],
+      program.programId,
     );
 
     const [vault] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("vault"),
-      organiserPubkey.toBuffer(),
-      countBuffer
-    ],
-    program.programId
+      [Buffer.from('vault'), organiserPubkey.toBuffer(), countBuffer],
+      program.programId,
     );
 
     const [config] = PublicKey.findProgramAddressSync(
-    [Buffer.from("config")],
-    program.programId
+      [Buffer.from('config')],
+      program.programId,
     );
 
-    let accounts = {
+    const accounts = {
       organiser: organiserPubkey,
       campaign,
       vault,
       config,
       campaignCounter,
     };
-    
-    try {
-      await program.methods
-        .createCampaign(rustGoal, rowId, rustDate)
-        .accounts({ ...accounts })
-        .signers([])
-        .rpc();
 
-    } catch (e: any) {
-      console.error("submitRaiser failed:", await e.getLogs());
-      throw e;
-    }
+    await program.methods
+      .createCampaign(rustGoal, rowId, rustDate)
+      .accounts({ ...accounts })
+      .signers([])
+      .rpc();
 
     await db.fundraisers.createRow(rowData, [], rowId);
 

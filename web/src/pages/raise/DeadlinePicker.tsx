@@ -36,7 +36,6 @@ export default function DeadlinePicker({ field }: Props) {
   );
   const [month, setMonth] = useState<Date | undefined>(date);
 
-
   return (
     <div className='flex flex-col gap-3'>
       <div className='relative flex gap-2'>

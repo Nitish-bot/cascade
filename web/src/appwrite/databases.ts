@@ -1,15 +1,17 @@
 import { tables, ID } from '@/appwrite/config';
+import { type Fundraiser } from '@/lib/types';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface DB {
   [key: string]: {
     createRow: (
-      payload: any,
+      payload: Fundraiser,
       permissions: string[],
       id?: string,
     ) => Promise<any>;
     readRow: (id: string, queries: string[]) => Promise<any>;
     updateRow: (
-      payload: any,
+      payload: Fundraiser,
       permissions: string[],
       id: string,
     ) => Promise<any>;
@@ -30,7 +32,7 @@ const tablesIndex = [
 
 tablesIndex.forEach((table) => {
   db[table.id] = {
-    createRow: (payload: any, permissions: string[], id = ID.unique()) =>
+    createRow: (payload: Fundraiser, permissions: string[], id = ID.unique()) =>
       tables.createRow({
         databaseId: table.dbId,
         tableId: table.id,
@@ -45,7 +47,7 @@ tablesIndex.forEach((table) => {
         rowId: id,
         queries,
       }),
-    updateRow: (payload: any, permissions: string[], id: string) =>
+    updateRow: (payload: Fundraiser, permissions: string[], id: string) =>
       tables.updateRow({
         databaseId: table.dbId,
         tableId: table.id,

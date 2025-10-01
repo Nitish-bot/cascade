@@ -89,11 +89,12 @@ export const formSchema2 = z.object({
     .refine((files) => files.length === 1, {
       message: 'Please upload an image.',
     })
-    .refine((files) => files.item(0)?.size! <= 5 * 1024 * 1024, {
+    .refine((files) => files.item(0)?.size ?? 0 <= 5 * 1024 * 1024, {
       message: 'Image size must be less than 5MB.',
     })
     .refine(
-      (files) => ['image/jpeg', 'image/png'].includes(files.item(0)?.type!),
+      (files) =>
+        ['image/jpeg', 'image/png'].includes(files.item(0)?.type ?? ''),
       {
         message: 'Only .jpg and .png formats are supported.',
       },

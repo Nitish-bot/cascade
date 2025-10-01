@@ -21,8 +21,7 @@ type Props = {
 
 function Form1({ onSubmit }: Props) {
   const form1 = useForm<z.infer<typeof formSchema1>>({
-    // any here because taking numeric input is less than ideal
-    resolver: zodResolver(formSchema1) as any,
+    resolver: zodResolver(formSchema1),
     defaultValues: {
       name: '',
       email: '',

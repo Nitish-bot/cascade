@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      'buffer': 'buffer',
+      buffer: 'buffer',
       '@': path.resolve(__dirname, './src'),
       target: path.resolve(__dirname, '../target'),
     },

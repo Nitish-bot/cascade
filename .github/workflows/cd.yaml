@@ -16,21 +16,56 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VITE_AW_ENDPOINT: https://fra.cloud.appwrite.io/v1
+      VITE_AW_PROJECT_ID: 68d05ecf001fbe3f0133
+      VITE_AW_DATABASE_ID: 68d06873001a2fae1d45
+      VITE_PROGRAM_ID: HQ8ejrFMtoNsShZRqkH842BRDqpzh7Xy7b5iqc1U9ffA
+      VITE_TREASURY_ID: 7hC5HoU81sjaFVaoGmM1bdKnSxbR6oWP1koBzKzBqKx8
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
+      - name: Pre-req
+        run: |
+          sudo apt-get install -y \
+          build-essential \
+          pkg-config \
+          libudev-dev llvm libclang-dev \
+          protobuf-compiler libssl-dev
 
-      - run: | 
+      - name: Install rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Install Anchor
+        run: |
+          cargo install --git https://github.com/solana-foundation/anchor avm --force
+          avm install latest
+          avm use latest
+          anchor build
+          
+      - uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+          dir: web
+
+      - uses: borales/actions-yarn@v4
+        with:
+          cmd: build
+          dir: web
+        
+      - name: Build website
+        run: | 
           cd web/
-          pnpm install
-          pnpm build
           touch ./dist/.nojekyll
           echo "whwhat.me" > ./dist/CNAME
-          mv ./dist ../
-
+          mv ./dist ../ 
     
       - name: Upload static files as artifact
         id: deployment
