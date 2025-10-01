@@ -27,15 +27,14 @@ function formItems(form: any, formInfo: FormInfo[]) {
               {info.field === 'country' ? (
                 <CountriesDropdown field={field} info={info} />
               ) : info.field === 'deadline' ? (
-                <DeadlinePicker />
+                <DeadlinePicker field={field}/>
               ) : info.field === 'story' ? (
                 <Textarea placeholder={info.placeholder} {...field} />
               ) : info.field === 'image' ? (
                 <Input
                   type='file'
-                  accept='image/jpeg,image/jpg,image/png,image/gif,image/webp'
+                  accept='image/jpeg,image/jpg,image/png,image/gif'
                   onChange={(e) => field.onChange(e.target.files)}
-                  // Don't spread field for file inputs
                   className='border-0 border-b-1 rounded-none bg-white'
                 />
               ) : (
@@ -52,6 +51,6 @@ function formItems(form: any, formInfo: FormInfo[]) {
       }}
     />
   ));
-};
+}
 
 export default formItems;

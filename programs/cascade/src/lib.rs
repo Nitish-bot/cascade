@@ -8,7 +8,7 @@ mod state;
 use anchor_lang::prelude::*;
 use instructions::*;
 
-declare_id!("6LvLTeiy6JNitq1WGdGp75DvRBHKrmpMAREfYgoMMyGq");
+declare_id!("HQ8ejrFMtoNsShZRqkH842BRDqpzh7Xy7b5iqc1U9ffA");
 
 #[program]
 pub mod cascade {

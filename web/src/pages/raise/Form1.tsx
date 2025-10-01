@@ -1,31 +1,38 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
-import { formSchema1, formInfo1 } from "@/pages/raise/formSchemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
+import { formSchema1, formInfo1 } from '@/pages/raise/formSchemas';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import right from '@/assets/right.svg';
 import formItems from '@/pages/raise/formItems';
 
 type Props = {
-  onSubmit: (values: z.infer<typeof formSchema1>) => void,
-}
+  onSubmit: (values: z.infer<typeof formSchema1>) => void;
+};
 
-function Form1({ onSubmit } : Props) {
+function Form1({ onSubmit }: Props) {
   const form1 = useForm<z.infer<typeof formSchema1>>({
     // any here because taking numeric input is less than ideal
     resolver: zodResolver(formSchema1) as any,
     defaultValues: {
       name: '',
       email: '',
-      goal: 22,
+      goal: '1',
       country: '',
-      deadline: new Date(),
+      deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
     },
   });
 
-  return(
+  return (
     <Form {...form1}>
       <form
         onSubmit={form1.handleSubmit(onSubmit)}
@@ -51,7 +58,7 @@ function Form1({ onSubmit } : Props) {
         </Card>
       </form>
     </Form>
-  )
+  );
 }
 
 export default Form1;

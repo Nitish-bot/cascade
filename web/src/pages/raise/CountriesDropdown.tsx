@@ -6,15 +6,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import type { ControllerRenderProps } from 'react-hook-form';
 
 type CountriesDropdownProps = {
-  field: any;
+  field: ControllerRenderProps;
   info: {
     placeholder: string;
   };
 };
 
-export default function CountriesDropdown({ field, info }: CountriesDropdownProps) {
+export default function CountriesDropdown({
+  field,
+  info,
+}: CountriesDropdownProps) {
   return (
     <Select value={field.value} onValueChange={field.onChange} defaultValue=''>
       <SelectTrigger className='bg-white '>

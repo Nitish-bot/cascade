@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     q: 'Are donations refundable?',
-    a: "Blockchain transactions on Solana are irreversible. Refunds are only possible if the campaign's creator chooses.",
+    a: "Blockchain transactions on Solana are irreversible. Refunds are only possible if the campaign's organiser chooses.",
   },
   {
     q: 'Can I donate anonymously?',

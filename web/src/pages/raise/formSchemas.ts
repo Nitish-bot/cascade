@@ -39,14 +39,12 @@ export const formSchema1 = z.object({
     message: 'Name must be at least 3 characters.',
   }),
   email: z.email('Invalid email address.'),
-  goal: z
-        .string()
-        .transform((val) => {
-          const sol = parseFloat(val);
-          if (isNaN(sol)) throw new Error('Goal must be a number.');
-          if (sol <= 0.5) throw new Error('Goal must be greater than 0.5 SOL.');
-          return sol;
-        }),
+  goal: z.string().refine((val) => {
+    const sol = parseFloat(val);
+    if (isNaN(sol)) throw new Error('Goal must be a number.');
+    if (sol <= 0.5) throw new Error('Goal must be greater than 0.5 SOL.');
+    return sol;
+  }),
   country: z.string().nonempty('Must select a country'),
   deadline: z.date(),
 });

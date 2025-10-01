@@ -1,30 +1,29 @@
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-import { Form } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { 
+import { Form } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
-} from "@/components/ui/card";
+  CardTitle,
+} from '@/components/ui/card';
 
-import { formSchema2, formInfo2 } from "@/pages/raise/formSchemas";
+import { formSchema2, formInfo2 } from '@/pages/raise/formSchemas';
 import formItems from '@/pages/raise/formItems';
 
 import left from '@/assets/left.svg';
 
 type Props = {
-  onSubmit: (values: z.infer<typeof formSchema2>) => void,
-  onSubmitBack: () => void,
-}
+  onSubmit: (values: z.infer<typeof formSchema2>) => void;
+  onSubmitBack: () => void;
+};
 
-function Form2({ onSubmit, onSubmitBack } : Props) {
+function Form2({ onSubmit, onSubmitBack }: Props) {
   const form2 = useForm<z.infer<typeof formSchema2>>({
     resolver: zodResolver(formSchema2),
     defaultValues: {
@@ -34,7 +33,7 @@ function Form2({ onSubmit, onSubmitBack } : Props) {
     },
   });
 
-  return(
+  return (
     <Form {...form2}>
       <form
         onSubmit={form2.handleSubmit(onSubmit)}
@@ -61,7 +60,7 @@ function Form2({ onSubmit, onSubmitBack } : Props) {
         </Card>
       </form>
     </Form>
-  )
+  );
 }
 
 export default Form2;

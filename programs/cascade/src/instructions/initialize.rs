@@ -39,7 +39,8 @@ pub struct Initialize<'info> {
     )]
     pub config: Account<'info, Config>,
 
-    /// CHECK: This is a
+    /// CHECK: This is a purely a read-only account
+    /// that holds the the fees collected by the platform.
     pub treasury: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
 }

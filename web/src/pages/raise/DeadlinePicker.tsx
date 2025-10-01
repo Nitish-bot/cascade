@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState } from 'react';
 import { parseDate } from 'chrono-node';
 import { CalendarIcon } from 'lucide-react';
 
@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import type { ControllerRenderProps } from 'react-hook-form';
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -23,13 +24,18 @@ function formatDate(date: Date | undefined) {
   });
 }
 
-export default function DeadlinePicker() {
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState('In 2 days');
-  const [date, setDate] = React.useState<Date | undefined>(
+type Props = {
+  field: ControllerRenderProps;
+};
+
+export default function DeadlinePicker({ field }: Props) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('In 2 days');
+  const [date, setDate] = useState<Date | undefined>(
     parseDate(value) || undefined,
   );
-  const [month, setMonth] = React.useState<Date | undefined>(date);
+  const [month, setMonth] = useState<Date | undefined>(date);
+
 
   return (
     <div className='flex flex-col gap-3'>
@@ -46,6 +52,7 @@ export default function DeadlinePicker() {
               setDate(date);
               setMonth(date);
             }
+            field.onChange(date);
           }}
           onKeyDown={(e) => {
             if (e.key === 'ArrowDown') {
@@ -72,6 +79,7 @@ export default function DeadlinePicker() {
                 setDate(date);
                 setValue(formatDate(date));
                 setOpen(false);
+                field.onChange(date);
               }}
             />
           </PopoverContent>
