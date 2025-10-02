@@ -49,7 +49,7 @@ jobs:
           cmd: install
           dir: web
 
-      - uses: borales/actions-yarn@v4e
+      - uses: borales/actions-yarn@v4
         env:
           VITE_AW_ENDPOINT: https://fra.cloud.appwrite.io/v1
           VITE_AW_PROJECT_ID: 68d05ecf001fbe3f0133
