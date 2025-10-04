@@ -51,11 +51,19 @@ async function submitRaiser(
       [Buffer.from('campaign_counter')],
       program.programId,
     );
+    const rawAccountInfo =
+      await program.provider.connection.getAccountInfo(campaignCounter);
+
+    // This tests whether we get a null account info or not
+    console.log('campaignCounter', campaignCounter.toBase58());
+    console.log('Raw Account Info:', rawAccountInfo);
 
     const counterAccount =
       await program.account.campaignCounter.fetchNullable(campaignCounter);
     const count = new BN(counterAccount ? counterAccount.count : -1);
+
     console.log('count', count.toString());
+
     if (count.eq(new BN(-1))) {
       throw new Error('Program not initialized');
     }

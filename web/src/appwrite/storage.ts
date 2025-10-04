@@ -15,9 +15,9 @@ export async function uploadImage(file: File, id: string): Promise<string> {
   }
 }
 
-export async function getImageUrl(fileId: string): Promise<string> {
+export function getImageUrl(fileId: string): string {
   try {
-    const url = await storage.getFilePreview({
+    const url = storage.getFilePreview({
       bucketId: BUCKET_ID,
       fileId: fileId,
     });

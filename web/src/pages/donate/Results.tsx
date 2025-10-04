@@ -11,8 +11,8 @@ import { Button } from '@/components/ui/button';
 
 import { Query } from '@/appwrite/config';
 import db from '@/appwrite/databases';
+import { getImageUrl } from '@/appwrite/storage';
 
-import imgSrc from '@/assets/censorship.svg';
 import type { Fundraiser } from '@/lib/types';
 
 const Cause = (
@@ -47,11 +47,13 @@ const Cause = (
   return (
     <Card className='shadow-0 my-12' key={$id}>
       <CardContent className='flex justify-between gap-12 xl:gap-24'>
-        <img
-          src={imgUrl}
-          className='h-40 xl:h-60 flex-shrink-0 w-auto object-contain'
-          alt={title}
-        />
+        <div className='self-center rounded-4xl'>
+          <img
+            src={imgUrl}
+            className='h-40 xl:h-60 self-center flex-shrink-0 w-auto object-contain rounded-lg'
+            alt={title}
+          />
+        </div>
         <div className='flex flex-col justify-between text-right flex-1 min-w-0'>
           <div className='space-y-3'>
             <CardTitle className='text-lg xl:text-2xl leading-tight tracking-wide break-words'>
@@ -96,16 +98,18 @@ function Results({ fundraisers, setFundraisers }: Props) {
 
   return (
     <section className='w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto px-16 mb-4'>
-      {fundraisers.map((fundraiser) =>
-        Cause(
+      {fundraisers.map((fundraiser) => {
+        const imgSrc = getImageUrl(fundraiser.imageID);
+
+        return Cause(
           fundraiser.$id,
           fundraiser.title,
           fundraiser.story,
           fundraiser.goal,
           fundraiser.goal,
           imgSrc,
-        ),
-      )}
+        );
+      })}
     </section>
   );
 }
