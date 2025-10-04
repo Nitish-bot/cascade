@@ -1,5 +1,5 @@
 // Inbuilt testing libs without mocha or chai
-import { before, beforeEach, describe, it, test} from "node:test";
+import { before, beforeEach, describe, it } from "node:test";
 import assert from "node:assert";
 
 // Codama generated client
@@ -7,10 +7,9 @@ import * as cascade from "../client/cascade";
 import { CASCADE_PROGRAM_ADDRESS } from "../client/cascade";
 
 import { connect, Connection } from "solana-kite";
-import { Address, assertAccountExists, KeyPairSigner, lamports, MaybeAccount } from "@solana/kit";
+import { Address, KeyPairSigner, lamports, MaybeAccount } from "@solana/kit";
 
-import fs from "fs";
-import { createCampaign, donateToCampaign } from "./utils/utils";
+import { createCampaign, donateToCampaign } from "./utils";
 
 const log = console.log;
 const stringify = (obj: any) => {

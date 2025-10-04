@@ -1,7 +1,7 @@
-import { Address, assertAccountExists, KeyPairSigner, lamports, MaybeAccount, Signature } from "@solana/kit";
+import { Address, assertAccountExists, KeyPairSigner, lamports, MaybeAccount } from "@solana/kit";
 import { Connection } from "solana-kite";
 
-import * as cascade from "../../client/cascade";
+import * as cascade from "../client/cascade";
 
 function bigintToUint8ArrayLE(x: bigint, byteLength = 8): Uint8Array {
   const buf = new Uint8Array(byteLength);
