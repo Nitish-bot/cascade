@@ -8,7 +8,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "target/*": ["../target/*"]
+      "client": ["../client/*"]
     }
     // "types": ["node"],
     // "moduleResolution": "node",

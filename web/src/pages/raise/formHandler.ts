@@ -4,18 +4,44 @@ import { uploadImage } from '@/appwrite/storage';
 
 import { type Fundraiser, type FormData } from '@/lib/types';
 
-import { BN } from 'bn.js';
-import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import * as cascade from '../../../../client/cascade';
+import { type Connection } from 'solana-kite';
+import { assertAccountExists, type Address, type SignatureBytes, type Transaction, type TransactionSendingSignerConfig } from '@solana/kit';
 
-import { type Program } from '@coral-xyz/anchor';
-import { type Cascade } from 'target/types/cascade';
+import type { UiWalletAccount } from '@wallet-standard/react';
+import { useContext } from 'react';
+import { useWalletAccountTransactionSendingSigner } from '@solana/react';
+import { ChainContext } from '@/context/ChainContext';
+import type { SelectedWalletAccountState } from '@/context/SelectedWalletAccountContext';
+
+const LAMPORTS_PER_SOL = 1_000_000_000n;
+
+function bigintToUint8ArrayLE(x: bigint, byteLength = 8): Uint8Array {
+  const buf = new Uint8Array(byteLength);
+  const view = new DataView(buf.buffer);
+  view.setBigUint64(0, x, true); 
+  return buf;
+}
+
+const encoder = new TextEncoder();
+
+type Signer = Readonly<{
+  address: Address<string>;
+  signAndSendTransactions(transactions: readonly Transaction[], config?: TransactionSendingSignerConfig): Promise<readonly SignatureBytes[]>;
+}>
 
 async function submitRaiser(
-  program: Program<Cascade>,
-  organiserPubkey: PublicKey,
+  connection: Connection,
+  organiser: Signer,
   data: FormData,
 ) {
   try {
+    const getCounters = connection.getAccountsFactory(
+      cascade.CASCADE_PROGRAM_ADDRESS,
+      cascade.CAMPAIGN_COUNTER_DISCRIMINATOR,
+      cascade.getCampaignCounterDecoder(),
+    );
+
     const fileId = ID.unique();
     const rowId = ID.unique();
 
@@ -34,7 +60,7 @@ async function submitRaiser(
     const rowData = {
       beneficiaryName: data.name,
       beneficiaryEmail: data.email,
-      organiserPublicKey: organiserPubkey.toBase58(),
+      organiserPublicKey: organiser.address.toString(),
       country: data.country,
       deadline: data.deadline,
       goal: goal,
@@ -44,63 +70,72 @@ async function submitRaiser(
       completed: false,
     } as Fundraiser;
 
-    const rustGoal = new BN(Math.floor(goal * LAMPORTS_PER_SOL));
-    const rustDate = new BN(Math.floor(data.deadline.getTime() / 1000));
+    const rustGoal = BigInt(goal) * LAMPORTS_PER_SOL;
+    const rustDate = BigInt(Math.floor(data.deadline.getTime() / 1000));
 
-    const [campaignCounter] = PublicKey.findProgramAddressSync(
-      [Buffer.from('campaign_counter')],
-      program.programId,
+    const { pda: configPda } = await connection.getPDAAndBump(
+      cascade.CASCADE_PROGRAM_ADDRESS,
+      [encoder.encode('config')],
     );
-    const rawAccountInfo =
-      await program.provider.connection.getAccountInfo(campaignCounter);
+    
+    const { pda: counterPda } = await connection.getPDAAndBump(
+      cascade.CASCADE_PROGRAM_ADDRESS,
+      [encoder.encode('campaign_counter')],
+    );
 
-    // This tests whether we get a null account info or not
-    console.log('campaignCounter', campaignCounter.toBase58());
-    console.log('Raw Account Info:', rawAccountInfo);
-
-    const counterAccount =
-      await program.account.campaignCounter.fetchNullable(campaignCounter);
-    const count = new BN(counterAccount ? counterAccount.count : -1);
+    // LOOK HERE IF COUNTER IS WRONG 
+    // TURN COMMITTMENT TO CONFRIMED
+    const counter = (await getCounters())[0];
+    assertAccountExists(counter);
+    const count = counter.data.count;
 
     console.log('count', count.toString());
 
-    if (count.eq(new BN(-1))) {
-      throw new Error('Program not initialized');
-    }
+    // WE NEED MORE SANITY CHECKS LIKE WHAT IF 
+    // getCounters RETURNS 0 ACCOUNTS
+    const countBuffer = bigintToUint8ArrayLE(count);
 
-    const countBuffer = count.toArrayLike(Buffer, 'le', 8);
-
-    const [campaign] = PublicKey.findProgramAddressSync(
-      [Buffer.from('campaign'), organiserPubkey.toBuffer(), countBuffer],
-      program.programId,
+    const campaignSeeds = [
+      encoder.encode("campaign"),
+      organiser.address.toString(),
+      countBuffer,
+    ];
+  
+    const vaultSeeds = [
+      encoder.encode("vault"),
+      organiser.address.toString(),
+      countBuffer,
+    ];
+  
+    const { pda: campaignPda } = await connection.getPDAAndBump(
+      cascade.CASCADE_PROGRAM_ADDRESS,
+      campaignSeeds,
     );
-
-    const [vault] = PublicKey.findProgramAddressSync(
-      [Buffer.from('vault'), organiserPubkey.toBuffer(), countBuffer],
-      program.programId,
+  
+    const { pda: vaultPda } = await connection.getPDAAndBump(
+      cascade.CASCADE_PROGRAM_ADDRESS,
+      vaultSeeds,
     );
+    
+    const ix = cascade.getCreateCampaignInstruction({
+      organiser: organiser,
+      campaign: campaignPda,
+      vault: vaultPda,
+      config: configPda,
+      campaignCounter: counterPda,
+      
+      goal: rustGoal,
+      metadata: rowId,
+      deadline: rustDate,
+    })
 
-    const [config] = PublicKey.findProgramAddressSync(
-      [Buffer.from('config')],
-      program.programId,
-    );
-
-    const accounts = {
-      organiser: organiserPubkey,
-      campaign,
-      vault,
-      config,
-      campaignCounter,
-    };
-
-    await program.methods
-      .createCampaign(rustGoal, rowId, rustDate)
-      .accounts({ ...accounts })
-      .signers([])
-      .rpc();
-
+    const tx = await connection.sendTransactionFromInstructionsWithWalletApp({
+      instructions: [ix],
+      feePayer: organiser,
+    })
+    console.log('Transaction', tx);
+    
     await db.fundraisers.createRow(rowData, [], rowId);
-
     const res = db.fundraisers.readRow(rowId, []);
     console.log('result', await res);
   } catch (e) {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { z } from 'zod';
 
 import { Progress } from '@/components/ui/progress';
@@ -11,28 +11,36 @@ import submitRaiser from '@/pages/raise/formHandler';
 import Nav from '@/components/sections/Nav';
 import Footer from '@/components/sections/Footer';
 import { type FormData } from '@/lib/types';
-import { useProgram } from '@/hooks/useProgram';
+import { ChainContext } from '@/context/ChainContext';
+import { useWalletAccountTransactionSendingSigner } from '@solana/react';
+import { SelectedWalletAccountContext } from '@/context/SelectedWalletAccountContext';
+import { connect } from 'solana-kite';
 
 function Raise() {
-  const program = useProgram();
   const [formData, setFormData] = useState<Partial<FormData>>({});
+  const [progress, setProgress] = useState(33);
+  
+  const [organiser] = useContext(SelectedWalletAccountContext);
+  if (organiser === undefined) {
+    throw new Error('No organiser wallet selected');
+  }
+
+  const { chain: currChain } = useContext(ChainContext);
+  const account = useWalletAccountTransactionSendingSigner(organiser, currChain);
+  const connection = connect(currChain);
+
 
   function onSubmit1(values: z.infer<typeof formSchema1>) {
     setFormData((prev) => ({ ...prev, ...values }));
     next();
-    setProgress(66);
+    setProgress(67);
     console.log('step 1 form data:', { ...formData, ...values });
   }
 
   function onSubmit2(values: z.infer<typeof formSchema2>) {
     const completeFormData = { ...formData, ...values } as FormData;
 
-    if (!program) {
-      alert('Please connect you to submit the fundraiser.');
-      return;
-    }
-
-    submitRaiser(program.program, program.pubkey, completeFormData);
+    submitRaiser(connection, account, completeFormData);
     console.log('step 2 form data:', completeFormData);
   }
 
@@ -42,7 +50,6 @@ function Raise() {
     console.log('Back from step2');
   }
 
-  const [progress, setProgress] = useState(33);
   const { step, next, back } = useMultiStepForm([
     <Form1 onSubmit={onSubmit1} />,
     <Form2 onSubmit={onSubmit2} onSubmitBack={onSubmitBack} />,

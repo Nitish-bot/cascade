@@ -10,7 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      target: path.resolve(__dirname, '../target'),
+      client: path.resolve(__dirname, '../client'),
       buffer: 'buffer/',
     },
   },
