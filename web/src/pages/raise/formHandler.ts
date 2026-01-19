@@ -4,7 +4,7 @@ import { uploadImage } from '@/appwrite/storage';
 
 import { type Fundraiser, type FormData } from '@/lib/types';
 
-import * as cascade from '../../../../client/cascade';
+import * as cascade from 'client/cascade';
 import { type Connection } from 'solana-kite';
 import { assertAccountExists, type Address, type SignatureBytes, type Transaction, type TransactionSendingSignerConfig } from '@solana/kit';
 

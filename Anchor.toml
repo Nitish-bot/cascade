@@ -1,5 +1,7 @@
 [toolchain]
 package_manager = "yarn"
+anchor_version = "0.32.1"    # `anchor-cli` version to use(requires `avm`)
+solana_version = "3.0.13"    # Solana version to use(applies to all Solana tools)
 
 [features]
 resolution = true

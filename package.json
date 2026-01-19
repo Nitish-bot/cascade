@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@solana/kit": "^3.0.3",
+    "@wallet-standard/core": "^1.1.1",
     "solana-kite": "^1.7.1"
   },
   "devDependencies": {

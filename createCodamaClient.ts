@@ -20,7 +20,7 @@ const loadIdl = async () => {
 const idl = await loadIdl();
 
 const codama = createFromRoot(rootNodeFromAnchor(idl));
-const genPath = path.join("client", "cascade");
+const genPath = path.join("web", "client", "cascade");
 
 codama.accept(renderVisitor(genPath));
 

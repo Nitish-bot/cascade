@@ -1,9 +1,9 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::native_token::LAMPORTS_PER_SOL;
 use anchor_lang::system_program::{ transfer, Transfer };
 
 use crate::errors::*;
 use crate::state::*;
+use crate::constants::LAMPORTS_PER_SOL;
 
 pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
     let organiser = &ctx.accounts.organiser;
