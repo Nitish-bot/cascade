@@ -8,7 +8,7 @@ export default function Cause(
   description: string,
   goal: number,
   completed: number,
-  imgUrl: string,
+  imgUrl?: string,
 ) {
   const truncateDescription = (text: string, wordLimit = 20) => {
     if (!text) return '';
@@ -35,11 +35,15 @@ export default function Cause(
     <Card className='shadow-0 my-12' key={$id}>
       <CardContent className='flex justify-between gap-12 xl:gap-24'>
         <div className='self-center rounded-4xl'>
-          <img
+          {
+          imgUrl ? <img
             src={imgUrl}
             className='h-40 xl:h-60 self-center flex-shrink-0 w-auto object-contain rounded-lg'
             alt={title}
-          />
+          /> : (<div
+            className='h-40 xl:h-60 self-center flex-shrink-0 w-auto object-contain rounded-lg'
+          />)
+          }
         </div>
         <div className='flex flex-col justify-between text-right flex-1 min-w-0'>
           <div className='space-y-3'>
