@@ -1,18 +1,17 @@
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo-black.svg';
 import hamburger from '@/assets/hamburger.svg';
-// import wallet from '@/assets/wallet.svg';
-
-import { useState } from 'react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import wallet from '@/assets/wallet.svg';
+import { ConnectWalletMenu } from '@/components/solana/ConnectWalletMenu';
 
 function Nav() {
-  const [hover, setHover] = useState(false);
-
   return (
     <header
-      className='absolute z-50 top-[2%] inset-x-0 left-1/2 -translate-x-1/2 flex justify-between items-center bg-main 
-          rounded-[1rem] border-2 p-4 items-center min-w-lg md:min-w-2xl lg:min-w-3xl xl:min-w-5xl mx-auto'
+      className='fixed z-50 top-[2%] mx-auto left-8 right-8
+        md:left-16 md:right-16 lg:left-32 lg:right-32
+        2xl:left-64 2xl:right-64
+        flex justify-between items-center bg-main 
+        rounded-[1rem] border-2 p-4'
     >
       <div>
         <Link to='/'>
@@ -35,26 +34,11 @@ function Nav() {
       {/* All this tomfoolery is to give the button a hover effect */}
       <div
         className='hidden md:inline font-black button-holder'
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
       >
-        <WalletMultiButton
-          style={{
-            backgroundColor: hover ? 'var(--background)' : 'var(--main)',
-            border: '2px solid var(--border)',
-            borderRadius: '10px',
-            padding: '1rem 1rem 0.85rem 1rem',
-            fontFamily: 'inherit',
-            fontWeight: 500,
-            lineHeight: '.25rem',
-            height: 'auto',
-            color: 'var(--border)',
-            transition: 'all 0.3s ease',
-          }}
-        >
-          {/* <img src={wallet} alt='Wallet' className='inline h-5 mr-1' />
-          <span className='mt-1'>Connect Wallet</span> */}
-        </WalletMultiButton>
+        <ConnectWalletMenu>
+          <img src={wallet} alt='Wallet' className='inline h-5 mr-1' />
+          <p className='mt-1'>Connect Wallet</p>
+        </ConnectWalletMenu>
       </div>
 
       <div className='md:hidden block border-2 rounded-md p-1'>

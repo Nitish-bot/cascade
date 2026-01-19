@@ -21,7 +21,6 @@ export function getImageUrl(fileId: string): string {
       bucketId: BUCKET_ID,
       fileId: fileId,
     });
-    console.log(url);
     return url;
   } catch (error) {
     console.error('Error getting image URL:', error);

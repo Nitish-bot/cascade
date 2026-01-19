@@ -1,6 +1,6 @@
 import { type ReactNode, useContext, useMemo } from "react";
-import { ChainContext } from "./ChainContext";
-import { type ConnectionContextType, ConnectionContext } from "./ConnectionContext";
+import { ChainContext } from "@/context/ChainContext";
+import { type ConnectionContextType, ConnectionContext } from "@/context/ConnectionContext";
 import { connect } from "solana-kite";
 
 // Define the props type

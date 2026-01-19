@@ -8,12 +8,6 @@ import * as cascade from '../../../../client/cascade';
 import { type Connection } from 'solana-kite';
 import { assertAccountExists, type Address, type SignatureBytes, type Transaction, type TransactionSendingSignerConfig } from '@solana/kit';
 
-import type { UiWalletAccount } from '@wallet-standard/react';
-import { useContext } from 'react';
-import { useWalletAccountTransactionSendingSigner } from '@solana/react';
-import { ChainContext } from '@/context/ChainContext';
-import type { SelectedWalletAccountState } from '@/context/SelectedWalletAccountContext';
-
 const LAMPORTS_PER_SOL = 1_000_000_000n;
 
 function bigintToUint8ArrayLE(x: bigint, byteLength = 8): Uint8Array {
@@ -68,6 +62,7 @@ async function submitRaiser(
       story: data.story,
       imageID: fileId,
       completed: false,
+      progress: 0,
     } as Fundraiser;
 
     const rustGoal = BigInt(goal) * LAMPORTS_PER_SOL;

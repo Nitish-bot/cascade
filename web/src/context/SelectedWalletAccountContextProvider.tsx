@@ -8,7 +8,7 @@ import {
 } from "@wallet-standard/react";
 import { useEffect, useMemo, useState } from "react";
 
-import { SelectedWalletAccountContext, type SelectedWalletAccountState } from "./SelectedWalletAccountContext";
+import { SelectedWalletAccountContext, type SelectedWalletAccountState } from "@/context/SelectedWalletAccountContext";
 
 const STORAGE_KEY = "cascade:selected-wallet-and-address";
 

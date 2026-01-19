@@ -1,7 +1,7 @@
 import { mainnet, testnet } from "@solana/kit";
 import { useMemo, useState } from "react";
 
-import { ChainContext, DEFAULT_CHAIN_CONFIG } from "./ChainContext";
+import { ChainContext, DEFAULT_CHAIN_CONFIG } from "@/context/ChainContext";
 
 const STORAGE_KEY = "cascade:selected-chain";
 

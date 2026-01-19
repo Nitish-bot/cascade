@@ -11,6 +11,7 @@ export type Fundraiser = Models.Row & {
   story: string;
   imageID: string;
   completed: boolean;
+  progress: number;
 };
 
 export type FormData = {

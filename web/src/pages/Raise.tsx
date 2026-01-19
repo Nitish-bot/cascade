@@ -15,6 +15,7 @@ import { ChainContext } from '@/context/ChainContext';
 import { useWalletAccountTransactionSendingSigner } from '@solana/react';
 import { SelectedWalletAccountContext } from '@/context/SelectedWalletAccountContext';
 import { connect } from 'solana-kite';
+import { redirect } from 'react-router-dom';
 
 function Raise() {
   const [formData, setFormData] = useState<Partial<FormData>>({});
@@ -25,10 +26,9 @@ function Raise() {
     throw new Error('No organiser wallet selected');
   }
 
-  const { chain: currChain } = useContext(ChainContext);
-  const account = useWalletAccountTransactionSendingSigner(organiser, currChain);
-  const connection = connect(currChain);
-
+  const { chain, solanaExplorerClusterName } = useContext(ChainContext);
+  const account = useWalletAccountTransactionSendingSigner(organiser, chain);
+  const connection = connect(solanaExplorerClusterName);
 
   function onSubmit1(values: z.infer<typeof formSchema1>) {
     setFormData((prev) => ({ ...prev, ...values }));
@@ -39,9 +39,11 @@ function Raise() {
 
   function onSubmit2(values: z.infer<typeof formSchema2>) {
     const completeFormData = { ...formData, ...values } as FormData;
-
+    setProgress(100);
     submitRaiser(connection, account, completeFormData);
     console.log('step 2 form data:', completeFormData);
+
+    redirect('/');
   }
 
   function onSubmitBack() {
