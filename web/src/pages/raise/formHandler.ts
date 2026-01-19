@@ -84,8 +84,6 @@ async function submitRaiser(
     assertAccountExists(counter);
     const count = counter.data.count;
 
-    console.log('count', count.toString());
-
     // WE NEED MORE SANITY CHECKS LIKE WHAT IF 
     // getCounters RETURNS 0 ACCOUNTS
     const countBuffer = bigintToUint8ArrayLE(count);
@@ -124,15 +122,13 @@ async function submitRaiser(
       deadline: rustDate,
     })
 
-    const tx = await connection.sendTransactionFromInstructionsWithWalletApp({
+    await connection.sendTransactionFromInstructionsWithWalletApp({
       instructions: [ix],
       feePayer: organiser,
     })
-    console.log('Transaction', tx);
     
     await db.fundraisers.createRow(rowData, [], rowId);
-    const res = db.fundraisers.readRow(rowId, []);
-    console.log('result', await res);
+    await db.fundraisers.readRow(rowId, []);
   } catch (e) {
     console.log('error from submitraiser ', e);
   }

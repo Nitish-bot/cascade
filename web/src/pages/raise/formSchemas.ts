@@ -81,7 +81,7 @@ export const formSchema2 = z.object({
     .min(50, {
       message: 'Story must be at least 50 characters.',
     })
-    .max(5000, {
+    .max(2500, {
       message: 'Story must be at most 5000 characters.',
     }),
   image: z
