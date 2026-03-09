@@ -50,7 +50,7 @@ export const CREATE_CAMPAIGN_DISCRIMINATOR = new Uint8Array([
 
 export function getCreateCampaignDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 8).encode(
-    CREATE_CAMPAIGN_DISCRIMINATOR
+    CREATE_CAMPAIGN_DISCRIMINATOR,
   );
 }
 
@@ -113,7 +113,7 @@ export function getCreateCampaignInstructionDataEncoder(): Encoder<CreateCampaig
       ['metadata', addEncoderSizePrefix(getUtf8Encoder(), getU32Encoder())],
       ['deadline', getI64Encoder()],
     ]),
-    (value) => ({ ...value, discriminator: CREATE_CAMPAIGN_DISCRIMINATOR })
+    (value) => ({ ...value, discriminator: CREATE_CAMPAIGN_DISCRIMINATOR }),
   );
 }
 
@@ -132,7 +132,7 @@ export function getCreateCampaignInstructionDataCodec(): Codec<
 > {
   return combineCodec(
     getCreateCampaignInstructionDataEncoder(),
-    getCreateCampaignInstructionDataDecoder()
+    getCreateCampaignInstructionDataDecoder(),
   );
 }
 
@@ -172,7 +172,7 @@ export async function getCreateCampaignInstructionAsync<
     TAccountConfig,
     TAccountSystemProgram
   >,
-  config?: { programAddress?: TProgramAddress }
+  config?: { programAddress?: TProgramAddress },
 ): Promise<
   CreateCampaignInstruction<
     TProgramAddress,
@@ -213,7 +213,7 @@ export async function getCreateCampaignInstructionAsync<
           new Uint8Array([
             99, 97, 109, 112, 97, 105, 103, 110, 95, 99, 111, 117, 110, 116,
             101, 114,
-          ])
+          ]),
         ),
       ],
     });
@@ -242,7 +242,7 @@ export async function getCreateCampaignInstructionAsync<
       getAccountMeta(accounts.systemProgram),
     ],
     data: getCreateCampaignInstructionDataEncoder().encode(
-      args as CreateCampaignInstructionDataArgs
+      args as CreateCampaignInstructionDataArgs,
     ),
     programAddress,
   } as CreateCampaignInstruction<
@@ -292,7 +292,7 @@ export function getCreateCampaignInstruction<
     TAccountConfig,
     TAccountSystemProgram
   >,
-  config?: { programAddress?: TProgramAddress }
+  config?: { programAddress?: TProgramAddress },
 ): CreateCampaignInstruction<
   TProgramAddress,
   TAccountOrganiser,
@@ -339,7 +339,7 @@ export function getCreateCampaignInstruction<
       getAccountMeta(accounts.systemProgram),
     ],
     data: getCreateCampaignInstructionDataEncoder().encode(
-      args as CreateCampaignInstructionDataArgs
+      args as CreateCampaignInstructionDataArgs,
     ),
     programAddress,
   } as CreateCampaignInstruction<
@@ -375,7 +375,7 @@ export function parseCreateCampaignInstruction<
 >(
   instruction: Instruction<TProgram> &
     InstructionWithAccounts<TAccountMetas> &
-    InstructionWithData<ReadonlyUint8Array>
+    InstructionWithData<ReadonlyUint8Array>,
 ): ParsedCreateCampaignInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 6) {
     // TODO: Coded error.

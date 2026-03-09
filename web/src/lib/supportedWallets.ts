@@ -1,18 +1,21 @@
-import { StandardConnect, StandardDisconnect } from "@wallet-standard/core";
-import type { UiWallet } from "@wallet-standard/react";
+import { StandardConnect, StandardDisconnect } from '@wallet-standard/core';
+import type { UiWallet } from '@wallet-standard/react';
 
-export default function supportedWallets(wallets: UiWallet[]) {
-  const supportedWallets = [];
-  const chain = process.env.CHAIN || "solana:devnet";
+export default function getSupportedWallets(
+  wallets: readonly UiWallet[],
+  chain: `solana:${string}` = 'solana:devnet',
+) {
+  const supported: UiWallet[] = [];
 
   for (const wallet of wallets) {
-    if (wallet.features.includes(StandardConnect)
-      && wallet.features.includes(StandardDisconnect)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      && wallet.chains.includes(chain as any)) {
-      supportedWallets.push(wallet);
+    if (
+      wallet.features.includes(StandardConnect) &&
+      wallet.features.includes(StandardDisconnect) &&
+      wallet.chains.includes(chain)
+    ) {
+      supported.push(wallet);
     }
   }
 
-  return supportedWallets;
+  return supported;
 }

@@ -99,7 +99,7 @@ export function getDonateInstructionDataEncoder(): FixedSizeEncoder<DonateInstru
       ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
       ['amount', getU64Encoder()],
     ]),
-    (value) => ({ ...value, discriminator: DONATE_DISCRIMINATOR })
+    (value) => ({ ...value, discriminator: DONATE_DISCRIMINATOR }),
   );
 }
 
@@ -116,7 +116,7 @@ export function getDonateInstructionDataCodec(): FixedSizeCodec<
 > {
   return combineCodec(
     getDonateInstructionDataEncoder(),
-    getDonateInstructionDataDecoder()
+    getDonateInstructionDataDecoder(),
   );
 }
 
@@ -158,7 +158,7 @@ export async function getDonateInstructionAsync<
     TAccountOrganiser,
     TAccountSystemProgram
   >,
-  config?: { programAddress?: TProgramAddress }
+  config?: { programAddress?: TProgramAddress },
 ): Promise<
   DonateInstruction<
     TProgramAddress,
@@ -218,7 +218,7 @@ export async function getDonateInstructionAsync<
       getAccountMeta(accounts.systemProgram),
     ],
     data: getDonateInstructionDataEncoder().encode(
-      args as DonateInstructionDataArgs
+      args as DonateInstructionDataArgs,
     ),
     programAddress,
   } as DonateInstruction<
@@ -271,7 +271,7 @@ export function getDonateInstruction<
     TAccountOrganiser,
     TAccountSystemProgram
   >,
-  config?: { programAddress?: TProgramAddress }
+  config?: { programAddress?: TProgramAddress },
 ): DonateInstruction<
   TProgramAddress,
   TAccountDonor,
@@ -321,7 +321,7 @@ export function getDonateInstruction<
       getAccountMeta(accounts.systemProgram),
     ],
     data: getDonateInstructionDataEncoder().encode(
-      args as DonateInstructionDataArgs
+      args as DonateInstructionDataArgs,
     ),
     programAddress,
   } as DonateInstruction<
@@ -359,7 +359,7 @@ export function parseDonateInstruction<
 >(
   instruction: Instruction<TProgram> &
     InstructionWithAccounts<TAccountMetas> &
-    InstructionWithData<ReadonlyUint8Array>
+    InstructionWithData<ReadonlyUint8Array>,
 ): ParsedDonateInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 7) {
     // TODO: Coded error.

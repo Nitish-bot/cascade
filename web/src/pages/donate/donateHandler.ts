@@ -1,5 +1,7 @@
-import type React from "react";
+import type React from 'react';
 
-export default function donateHandler(event: React.MouseEvent<HTMLButtonElement>) {
+export default function donateHandler(
+  event: React.MouseEvent<HTMLButtonElement>,
+) {
   event.preventDefault();
 }

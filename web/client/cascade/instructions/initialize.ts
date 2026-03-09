@@ -83,7 +83,7 @@ export type InitializeInstructionDataArgs = {};
 export function getInitializeInstructionDataEncoder(): FixedSizeEncoder<InitializeInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    (value) => ({ ...value, discriminator: INITIALIZE_DISCRIMINATOR })
+    (value) => ({ ...value, discriminator: INITIALIZE_DISCRIMINATOR }),
   );
 }
 
@@ -99,7 +99,7 @@ export function getInitializeInstructionDataCodec(): FixedSizeCodec<
 > {
   return combineCodec(
     getInitializeInstructionDataEncoder(),
-    getInitializeInstructionDataDecoder()
+    getInitializeInstructionDataDecoder(),
   );
 }
 
@@ -133,7 +133,7 @@ export async function getInitializeInstructionAsync<
     TAccountTreasury,
     TAccountSystemProgram
   >,
-  config?: { programAddress?: TProgramAddress }
+  config?: { programAddress?: TProgramAddress },
 ): Promise<
   InitializeInstruction<
     TProgramAddress,
@@ -169,7 +169,7 @@ export async function getInitializeInstructionAsync<
           new Uint8Array([
             99, 97, 109, 112, 97, 105, 103, 110, 95, 99, 111, 117, 110, 116,
             101, 114,
-          ])
+          ]),
         ),
       ],
     });
@@ -238,7 +238,7 @@ export function getInitializeInstruction<
     TAccountTreasury,
     TAccountSystemProgram
   >,
-  config?: { programAddress?: TProgramAddress }
+  config?: { programAddress?: TProgramAddress },
 ): InitializeInstruction<
   TProgramAddress,
   TAccountSigner,
@@ -312,7 +312,7 @@ export function parseInitializeInstruction<
 >(
   instruction: Instruction<TProgram> &
     InstructionWithAccounts<TAccountMetas> &
-    InstructionWithData<ReadonlyUint8Array>
+    InstructionWithData<ReadonlyUint8Array>,
 ): ParsedInitializeInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 5) {
     // TODO: Coded error.

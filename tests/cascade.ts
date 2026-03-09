@@ -3,8 +3,8 @@ import { before, beforeEach, describe, it } from "node:test";
 import assert from "node:assert";
 
 // Codama generated client
-import * as cascade from "../client/cascade";
-import { CASCADE_PROGRAM_ADDRESS } from "../client/cascade";
+import * as cascade from "../web/client/cascade";
+import { CASCADE_PROGRAM_ADDRESS } from "../web/client/cascade";
 
 import { connect, Connection } from "solana-kite";
 import { Address, KeyPairSigner, lamports, MaybeAccount } from "@solana/kit";
@@ -13,26 +13,27 @@ import { createCampaign, donateToCampaign } from "./utils";
 
 const log = console.log;
 const stringify = (obj: any) => {
-  const bigIntReplacer = (key: string, value: any) => 
+  const bigIntReplacer = (key: string, value: any) =>
     typeof value === "bigint" ? value.toString() : value;
   return JSON.stringify(obj, bigIntReplacer, 2);
-}
+};
 
 describe("cascade", () => {
   let alice: KeyPairSigner;
   let bob: KeyPairSigner;
   let wallet: KeyPairSigner;
   let connection: Connection;
-  
-  let getCounters: () => Promise<MaybeAccount<cascade.CampaignCounter, string>[]>;
+
+  let getCounters: () => Promise<
+    MaybeAccount<cascade.CampaignCounter, string>[]
+  >;
   let counter: MaybeAccount<cascade.CampaignCounter, string>;
 
   const counterSeeds = [Buffer.from("campaign_counter")];
   const configSeeds = [Buffer.from("config")];
-  
+
   let counterPda: Address;
   let configPda: Address;
-
 
   before(async () => {
     connection = connect();
@@ -40,15 +41,13 @@ describe("cascade", () => {
     wallet = await connection.loadWalletFromFile();
     [alice, bob] = await connection.createWallets(2);
 
-    counterPda = (await connection.getPDAAndBump(
-      CASCADE_PROGRAM_ADDRESS,
-      counterSeeds
-    )).pda;
+    counterPda = (
+      await connection.getPDAAndBump(CASCADE_PROGRAM_ADDRESS, counterSeeds)
+    ).pda;
 
-    configPda = (await connection.getPDAAndBump(
-      CASCADE_PROGRAM_ADDRESS,
-      configSeeds
-    )).pda;
+    configPda = (
+      await connection.getPDAAndBump(CASCADE_PROGRAM_ADDRESS, configSeeds)
+    ).pda;
 
     getCounters = connection.getAccountsFactory(
       CASCADE_PROGRAM_ADDRESS,
@@ -60,12 +59,12 @@ describe("cascade", () => {
     const initialized = counter_list.length === 1 && counter_list[0].exists;
 
     if (!initialized) {
-      const ix =  cascade.getInitializeInstruction({
+      const ix = cascade.getInitializeInstruction({
         signer: wallet,
         campaignCounter: counterPda,
         config: configPda,
         treasury: wallet.address,
-      })
+      });
 
       const tx = await connection.sendTransactionFromInstructions({
         feePayer: wallet,
@@ -78,36 +77,30 @@ describe("cascade", () => {
     }
   });
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     connection.airdropIfRequired(
       alice.address,
       lamports(1_000_000_000n),
-      lamports(500_000_000n)
+      lamports(500_000_000n),
     );
 
     connection.airdropIfRequired(
       bob.address,
       lamports(1_000_000_000n),
-      lamports(500_000_000n)
+      lamports(500_000_000n),
     );
 
     connection.airdropIfRequired(
       wallet.address,
       lamports(1_000_000_000n),
-      lamports(500_000_000n)
+      lamports(500_000_000n),
     );
 
     counter = (await getCounters())[0];
-  })
+  });
 
   it("creates a campaign", async () => {
-    await createCampaign(
-      connection,
-      alice,
-      counter,
-      counterPda,
-      configPda,
-    );
+    await createCampaign(connection, alice, counter, counterPda, configPda);
   });
 
   it("does not create a campaign with deadline less than a day", async () => {
@@ -122,7 +115,7 @@ describe("cascade", () => {
         configPda,
         deadline,
       ),
-    )
+    );
   });
 
   it("donates to a campaign", async () => {
@@ -133,7 +126,7 @@ describe("cascade", () => {
       counterPda,
       configPda,
     );
-    
+
     await donateToCampaign(
       connection,
       bob,
@@ -167,20 +160,28 @@ describe("cascade", () => {
       alice.address,
     );
 
-    const aliceBalanceBefore = await connection.getLamportBalance(alice.address, "confirmed");
-    const vaultBalance = await connection.getLamportBalance(vaultPda, "confirmed");
-    
-    const rentExempt =
-      await connection.rpc.getMinimumBalanceForRentExemption(
-        // This is because the vault is just a 
+    const aliceBalanceBefore = await connection.getLamportBalance(
+      alice.address,
+      "confirmed",
+    );
+    const vaultBalance = await connection.getLamportBalance(
+      vaultPda,
+      "confirmed",
+    );
+
+    const rentExempt = await connection.rpc
+      .getMinimumBalanceForRentExemption(
+        // This is because the vault is just a
         // SystemAccount with no data
         BigInt(0),
-      ).send();
+      )
+      .send();
 
     const tx = cascade.getWithdrawInstruction({
       organiser: alice,
       campaign: campaignPda,
       vault: vaultPda,
+      config: configPda,
 
       amount: vaultBalance - rentExempt,
     });
@@ -189,11 +190,15 @@ describe("cascade", () => {
       feePayer: alice,
       instructions: [tx],
     });
-    
-    const aliceBalanceAfter = await connection.getLamportBalance(alice.address, "confirmed");
+
+    const aliceBalanceAfter = await connection.getLamportBalance(
+      alice.address,
+      "confirmed",
+    );
     assert(
-      aliceBalanceAfter >= aliceBalanceBefore + vaultBalance - rentExempt - 10_000n,
-      "Withdrawal not received in organiser account"
-    );    
+      aliceBalanceAfter >=
+        aliceBalanceBefore + vaultBalance - rentExempt - 10_000n,
+      "Withdrawal not received in organiser account",
+    );
   });
 });

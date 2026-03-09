@@ -15,12 +15,13 @@ import { ChainContext } from '@/context/ChainContext';
 import { useWalletAccountTransactionSendingSigner } from '@solana/react';
 import { SelectedWalletAccountContext } from '@/context/SelectedWalletAccountContext';
 import { connect } from 'solana-kite';
-import { redirect } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Raise() {
   const [formData, setFormData] = useState<Partial<FormData>>({});
   const [progress, setProgress] = useState(33);
-  
+  const navigate = useNavigate();
+
   const [organiser] = useContext(SelectedWalletAccountContext);
   if (organiser === undefined) {
     throw new Error('No organiser wallet selected');
@@ -43,7 +44,7 @@ function Raise() {
     submitRaiser(connection, account, completeFormData);
     console.log('step 2 form data:', completeFormData);
 
-    redirect('/');
+    navigate('/');
   }
 
   function onSubmitBack() {

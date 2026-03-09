@@ -7,7 +7,7 @@ import x from '@/assets/x.svg';
 function Footer() {
   return (
     <footer className='bg-main border-t-4 border-border'>
-      <div className='relative z-10 max-w-6xl mx-auto px-8 pt-16 pb-4 w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto'>
+      <div className='relative z-10 px-8 pt-16 pb-4 w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto'>
         <div className='flex flex-wrap gap-6 mb-12 justify-between'>
           <div className='flex flex-col justify-between max-w-[600px] lg:max-w-[700px] text-left p-6'>
             <div className='mb-6'>
@@ -45,12 +45,6 @@ function Footer() {
                 >
                   <span className='absolute left-0 bottom-0 w-0 h-0.5 bg-background transition-all duration-300 group-hover:w-full'></span>
                   Terms of Service
-                </Link>
-                <Link
-                  to='/how-it-works'
-                  className='block text-foreground hover:text-background transition-colors duration-200 text-lg font-semibold relative group'
-                >
-                  <span className='absolute left-0 bottom-0 w-0 h-0.5 bg-background transition-all duration-300 group-hover:w-full'></span>
                 </Link>
               </nav>
             </div>
@@ -98,7 +92,7 @@ function Footer() {
         {/* Bottom section - also a grid-like element */}
         <div className='p-3'>
           <div className='flex flex-col justify-center items-center gap-4 text-foreground text-lg font-semibold px-4 py-1'>
-            <span>© 2024 Cascade. All rights reserved</span>
+            <span>© {new Date().getFullYear()} Cascade. All rights reserved</span>
             <span>Made with ❤️ in India.</span>
           </div>
         </div>

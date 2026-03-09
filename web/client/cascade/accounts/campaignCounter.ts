@@ -41,7 +41,7 @@ export const CAMPAIGN_COUNTER_DISCRIMINATOR = new Uint8Array([
 
 export function getCampaignCounterDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 8).encode(
-    CAMPAIGN_COUNTER_DISCRIMINATOR
+    CAMPAIGN_COUNTER_DISCRIMINATOR,
   );
 }
 
@@ -58,7 +58,7 @@ export function getCampaignCounterEncoder(): FixedSizeEncoder<CampaignCounterArg
       ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
       ['count', getU64Encoder()],
     ]),
-    (value) => ({ ...value, discriminator: CAMPAIGN_COUNTER_DISCRIMINATOR })
+    (value) => ({ ...value, discriminator: CAMPAIGN_COUNTER_DISCRIMINATOR }),
   );
 }
 
@@ -77,26 +77,26 @@ export function getCampaignCounterCodec(): FixedSizeCodec<
 }
 
 export function decodeCampaignCounter<TAddress extends string = string>(
-  encodedAccount: EncodedAccount<TAddress>
+  encodedAccount: EncodedAccount<TAddress>,
 ): Account<CampaignCounter, TAddress>;
 export function decodeCampaignCounter<TAddress extends string = string>(
-  encodedAccount: MaybeEncodedAccount<TAddress>
+  encodedAccount: MaybeEncodedAccount<TAddress>,
 ): MaybeAccount<CampaignCounter, TAddress>;
 export function decodeCampaignCounter<TAddress extends string = string>(
-  encodedAccount: EncodedAccount<TAddress> | MaybeEncodedAccount<TAddress>
+  encodedAccount: EncodedAccount<TAddress> | MaybeEncodedAccount<TAddress>,
 ):
   | Account<CampaignCounter, TAddress>
   | MaybeAccount<CampaignCounter, TAddress> {
   return decodeAccount(
     encodedAccount as MaybeEncodedAccount<TAddress>,
-    getCampaignCounterDecoder()
+    getCampaignCounterDecoder(),
   );
 }
 
 export async function fetchCampaignCounter<TAddress extends string = string>(
   rpc: Parameters<typeof fetchEncodedAccount>[0],
   address: Address<TAddress>,
-  config?: FetchAccountConfig
+  config?: FetchAccountConfig,
 ): Promise<Account<CampaignCounter, TAddress>> {
   const maybeAccount = await fetchMaybeCampaignCounter(rpc, address, config);
   assertAccountExists(maybeAccount);
@@ -108,7 +108,7 @@ export async function fetchMaybeCampaignCounter<
 >(
   rpc: Parameters<typeof fetchEncodedAccount>[0],
   address: Address<TAddress>,
-  config?: FetchAccountConfig
+  config?: FetchAccountConfig,
 ): Promise<MaybeAccount<CampaignCounter, TAddress>> {
   const maybeAccount = await fetchEncodedAccount(rpc, address, config);
   return decodeCampaignCounter(maybeAccount);
@@ -117,12 +117,12 @@ export async function fetchMaybeCampaignCounter<
 export async function fetchAllCampaignCounter(
   rpc: Parameters<typeof fetchEncodedAccounts>[0],
   addresses: Array<Address>,
-  config?: FetchAccountsConfig
+  config?: FetchAccountsConfig,
 ): Promise<Account<CampaignCounter>[]> {
   const maybeAccounts = await fetchAllMaybeCampaignCounter(
     rpc,
     addresses,
-    config
+    config,
   );
   assertAccountsExist(maybeAccounts);
   return maybeAccounts;
@@ -131,11 +131,11 @@ export async function fetchAllCampaignCounter(
 export async function fetchAllMaybeCampaignCounter(
   rpc: Parameters<typeof fetchEncodedAccounts>[0],
   addresses: Array<Address>,
-  config?: FetchAccountsConfig
+  config?: FetchAccountsConfig,
 ): Promise<MaybeAccount<CampaignCounter>[]> {
   const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config);
   return maybeAccounts.map((maybeAccount) =>
-    decodeCampaignCounter(maybeAccount)
+    decodeCampaignCounter(maybeAccount),
   );
 }
 

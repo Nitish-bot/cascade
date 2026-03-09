@@ -1,6 +1,6 @@
 let storage: Storage | undefined;
 try {
-  if (typeof window !== "undefined" && window.localStorage) {
+  if (typeof window !== 'undefined' && window.localStorage) {
     storage = window.localStorage;
   }
 } catch {
@@ -28,14 +28,15 @@ function guard<TArgs extends unknown[], TReturn, TFallbackReturn>(
   };
 }
 
-export const localStorage: Pick<Storage, "getItem" | "removeItem" | "setItem"> = {
-  getItem: guard((k) => {
-    return storage?.getItem(k) ?? null;
-  }, null),
-  removeItem: guard((k) => {
-    storage?.removeItem(k);
-  }),
-  setItem: guard((k, v) => {
-    storage?.setItem(k, v);
-  }),
-};
+export const localStorage: Pick<Storage, 'getItem' | 'removeItem' | 'setItem'> =
+  {
+    getItem: guard((k) => {
+      return storage?.getItem(k) ?? null;
+    }, null),
+    removeItem: guard((k) => {
+      storage?.removeItem(k);
+    }),
+    setItem: guard((k, v) => {
+      storage?.setItem(k, v);
+    }),
+  };

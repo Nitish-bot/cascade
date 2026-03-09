@@ -28,11 +28,12 @@ const contents = [
   },
   {
     title: 'Censorship Resistant',
-    // "description": "Campaigns can't be silenced or frozen, giving every cause a fair chance to be heard.",
+    description:
+      "Campaigns can't be silenced or frozen, giving every cause a fair chance to be heard.",
     icon: censorship,
   },
   {
-    title: 'Mininmal Fees',
+    title: 'Minimal Fees',
     description:
       'We only charge a tiny fee to keep the platform running, ensuring that the causes get the most of your support.',
     icon: lowfee,

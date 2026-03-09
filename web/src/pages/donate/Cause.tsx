@@ -1,15 +1,29 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 
-export default function Cause(
-  $id: string,
-  title: string,
-  description: string,
-  goal: number,
-  completed: number,
-  imgUrl?: string,
-) {
+type CauseProps = {
+  id: string;
+  title: string;
+  description: string;
+  goal: number;
+  completed: number;
+  imgUrl?: string;
+};
+
+export default function Cause({
+  id,
+  title,
+  description,
+  goal,
+  completed,
+  imgUrl,
+}: CauseProps) {
   const truncateDescription = (text: string, wordLimit = 20) => {
     if (!text) return '';
     const segments = text.match(/\S+\s*/g);
@@ -32,18 +46,18 @@ export default function Cause(
   const progressPercentage =
     goal > 0 ? Math.min((completed / goal) * 100, 100) : 0;
   return (
-    <Card className='shadow-0 my-12' key={$id}>
+    <Card className='shadow-0 my-12' key={id}>
       <CardContent className='flex justify-between gap-12 xl:gap-24'>
         <div className='self-center rounded-4xl'>
-          {
-          imgUrl ? <img
-            src={imgUrl}
-            className='h-40 xl:h-60 self-center flex-shrink-0 w-auto object-contain rounded-lg'
-            alt={title}
-          /> : (<div
-            className='h-40 xl:h-60 self-center flex-shrink-0 w-auto object-contain rounded-lg'
-          />)
-          }
+          {imgUrl ? (
+            <img
+              src={imgUrl}
+              className='h-40 xl:h-60 self-center flex-shrink-0 w-auto object-contain rounded-lg'
+              alt={title}
+            />
+          ) : (
+            <div className='h-40 xl:h-60 w-40 xl:w-60 self-center flex-shrink-0 bg-gray-200 rounded-lg' />
+          )}
         </div>
         <div className='flex flex-col justify-between text-right flex-1 min-w-0'>
           <div className='space-y-3'>
@@ -61,7 +75,7 @@ export default function Cause(
                 {completed} SOL of {goal} SOL
               </span>
             </div>
-            <Button id={$id} size={'default'} variant={'noShadow'}>
+            <Button id={id} size={'default'} variant={'noShadow'}>
               Donate
             </Button>
           </div>
@@ -69,4 +83,4 @@ export default function Cause(
       </CardContent>
     </Card>
   );
-};
+}

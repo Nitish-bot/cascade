@@ -6,14 +6,20 @@ import { type Fundraiser, type FormData } from '@/lib/types';
 
 import * as cascade from 'client/cascade';
 import { type Connection } from 'solana-kite';
-import { assertAccountExists, type Address, type SignatureBytes, type Transaction, type TransactionSendingSignerConfig } from '@solana/kit';
+import {
+  assertAccountExists,
+  type Address,
+  type SignatureBytes,
+  type Transaction,
+  type TransactionSendingSignerConfig,
+} from '@solana/kit';
 
 const LAMPORTS_PER_SOL = 1_000_000_000n;
 
 function bigintToUint8ArrayLE(x: bigint, byteLength = 8): Uint8Array {
   const buf = new Uint8Array(byteLength);
   const view = new DataView(buf.buffer);
-  view.setBigUint64(0, x, true); 
+  view.setBigUint64(0, x, true);
   return buf;
 }
 
@@ -21,8 +27,11 @@ const encoder = new TextEncoder();
 
 type Signer = Readonly<{
   address: Address<string>;
-  signAndSendTransactions(transactions: readonly Transaction[], config?: TransactionSendingSignerConfig): Promise<readonly SignatureBytes[]>;
-}>
+  signAndSendTransactions(
+    transactions: readonly Transaction[],
+    config?: TransactionSendingSignerConfig,
+  ): Promise<readonly SignatureBytes[]>;
+}>;
 
 async function submitRaiser(
   connection: Connection,
@@ -72,61 +81,61 @@ async function submitRaiser(
       cascade.CASCADE_PROGRAM_ADDRESS,
       [encoder.encode('config')],
     );
-    
+
     const { pda: counterPda } = await connection.getPDAAndBump(
       cascade.CASCADE_PROGRAM_ADDRESS,
       [encoder.encode('campaign_counter')],
     );
 
-    // LOOK HERE IF COUNTER IS WRONG 
+    // LOOK HERE IF COUNTER IS WRONG
     // TURN COMMITTMENT TO CONFRIMED
     const counter = (await getCounters())[0];
     assertAccountExists(counter);
     const count = counter.data.count;
 
-    // WE NEED MORE SANITY CHECKS LIKE WHAT IF 
+    // WE NEED MORE SANITY CHECKS LIKE WHAT IF
     // getCounters RETURNS 0 ACCOUNTS
     const countBuffer = bigintToUint8ArrayLE(count);
 
     const campaignSeeds = [
-      encoder.encode("campaign"),
+      encoder.encode('campaign'),
       organiser.address.toString(),
       countBuffer,
     ];
-  
+
     const vaultSeeds = [
-      encoder.encode("vault"),
+      encoder.encode('vault'),
       organiser.address.toString(),
       countBuffer,
     ];
-  
+
     const { pda: campaignPda } = await connection.getPDAAndBump(
       cascade.CASCADE_PROGRAM_ADDRESS,
       campaignSeeds,
     );
-  
+
     const { pda: vaultPda } = await connection.getPDAAndBump(
       cascade.CASCADE_PROGRAM_ADDRESS,
       vaultSeeds,
     );
-    
+
     const ix = cascade.getCreateCampaignInstruction({
       organiser: organiser,
       campaign: campaignPda,
       vault: vaultPda,
       config: configPda,
       campaignCounter: counterPda,
-      
+
       goal: rustGoal,
       metadata: rowId,
       deadline: rustDate,
-    })
+    });
 
     await connection.sendTransactionFromInstructionsWithWalletApp({
       instructions: [ix],
       feePayer: organiser,
-    })
-    
+    });
+
     await db.fundraisers.createRow(rowData, [], rowId);
     await db.fundraisers.readRow(rowId, []);
   } catch (e) {

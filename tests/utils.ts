@@ -1,12 +1,18 @@
-import { Address, assertAccountExists, KeyPairSigner, lamports, MaybeAccount } from "@solana/kit";
+import {
+  Address,
+  assertAccountExists,
+  KeyPairSigner,
+  lamports,
+  MaybeAccount,
+} from "@solana/kit";
 import { Connection } from "solana-kite";
 
-import * as cascade from "../client/cascade";
+import * as cascade from "../web/client/cascade";
 
 function bigintToUint8ArrayLE(x: bigint, byteLength = 8): Uint8Array {
   const buf = new Uint8Array(byteLength);
   const view = new DataView(buf.buffer);
-  view.setBigUint64(0, x, true); 
+  view.setBigUint64(0, x, true);
   return buf;
 }
 
@@ -17,7 +23,7 @@ export async function createCampaign(
   counterPda: Address,
   configPda: Address,
   deadline?: bigint,
-): Promise<{ campaignPda: Address; vaultPda: Address; }> {
+): Promise<{ campaignPda: Address; vaultPda: Address }> {
   assertAccountExists(counter);
   const count = counter.data.count;
 
@@ -53,15 +59,16 @@ export async function createCampaign(
 
     goal: BigInt(1_000_000_000), // 1 SOL
     metadata: "xyz.link",
-    deadline: deadline ?? BigInt(Math.floor(Date.now() / 1000) + 7 * secondsInDay),
+    deadline:
+      deadline ?? BigInt(Math.floor(Date.now() / 1000) + 7 * secondsInDay),
   });
 
   await connection.sendTransactionFromInstructions({
     feePayer: organiser,
     instructions: [ix],
-  })
+  });
 
-  return { campaignPda, vaultPda, };
+  return { campaignPda, vaultPda };
 }
 
 export async function donateToCampaign(
@@ -80,11 +87,11 @@ export async function donateToCampaign(
     config: configPda,
     treasury: treasury,
     organiser: organiser,
-    
-    amount: lamports(100_000_000n),
-  })
 
-  const tx = await connection.sendTransactionFromInstructions({
+    amount: lamports(100_000_000n),
+  });
+
+  await connection.sendTransactionFromInstructions({
     feePayer: donor,
     instructions: [ix],
   });

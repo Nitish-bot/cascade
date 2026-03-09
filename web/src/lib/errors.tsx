@@ -7,8 +7,6 @@ import {
 } from "@wallet-standard/core";
 import React from "react";
 
-export const NO_ERROR = Symbol();
-
 export function getErrorMessage(error: unknown, fallbackMessage: React.ReactNode): React.ReactNode {
   if (isWalletStandardError(error, WALLET_STANDARD_ERROR__FEATURES__WALLET_ACCOUNT_FEATURE_UNIMPLEMENTED)) {
     return (

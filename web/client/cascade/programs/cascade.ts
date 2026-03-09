@@ -22,7 +22,7 @@ import {
 } from '../instructions';
 
 export const CASCADE_PROGRAM_ADDRESS =
-  'HQ8ejrFMtoNsShZRqkH842BRDqpzh7Xy7b5iqc1U9ffA' as Address<'HQ8ejrFMtoNsShZRqkH842BRDqpzh7Xy7b5iqc1U9ffA'>;
+  'DJQChB4riBobXMsFgJwa5wGpwXGzGsrv8EMsWkT6SGnB' as Address<'DJQChB4riBobXMsFgJwa5wGpwXGzGsrv8EMsWkT6SGnB'>;
 
 export enum CascadeAccount {
   Campaign,
@@ -31,16 +31,16 @@ export enum CascadeAccount {
 }
 
 export function identifyCascadeAccount(
-  account: { data: ReadonlyUint8Array } | ReadonlyUint8Array
+  account: { data: ReadonlyUint8Array } | ReadonlyUint8Array,
 ): CascadeAccount {
   const data = 'data' in account ? account.data : account;
   if (
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([50, 40, 49, 11, 157, 220, 229, 192])
+        new Uint8Array([50, 40, 49, 11, 157, 220, 229, 192]),
       ),
-      0
+      0,
     )
   ) {
     return CascadeAccount.Campaign;
@@ -49,9 +49,9 @@ export function identifyCascadeAccount(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([166, 204, 173, 116, 178, 217, 1, 210])
+        new Uint8Array([166, 204, 173, 116, 178, 217, 1, 210]),
       ),
-      0
+      0,
     )
   ) {
     return CascadeAccount.CampaignCounter;
@@ -60,15 +60,15 @@ export function identifyCascadeAccount(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([155, 12, 170, 224, 30, 250, 204, 130])
+        new Uint8Array([155, 12, 170, 224, 30, 250, 204, 130]),
       ),
-      0
+      0,
     )
   ) {
     return CascadeAccount.Config;
   }
   throw new Error(
-    'The provided account could not be identified as a cascade account.'
+    'The provided account could not be identified as a cascade account.',
   );
 }
 
@@ -81,16 +81,16 @@ export enum CascadeInstruction {
 }
 
 export function identifyCascadeInstruction(
-  instruction: { data: ReadonlyUint8Array } | ReadonlyUint8Array
+  instruction: { data: ReadonlyUint8Array } | ReadonlyUint8Array,
 ): CascadeInstruction {
   const data = 'data' in instruction ? instruction.data : instruction;
   if (
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([111, 131, 187, 98, 160, 193, 114, 244])
+        new Uint8Array([111, 131, 187, 98, 160, 193, 114, 244]),
       ),
-      0
+      0,
     )
   ) {
     return CascadeInstruction.CreateCampaign;
@@ -99,9 +99,9 @@ export function identifyCascadeInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([121, 186, 218, 211, 73, 70, 196, 180])
+        new Uint8Array([121, 186, 218, 211, 73, 70, 196, 180]),
       ),
-      0
+      0,
     )
   ) {
     return CascadeInstruction.Donate;
@@ -110,9 +110,9 @@ export function identifyCascadeInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([175, 175, 109, 31, 13, 152, 155, 237])
+        new Uint8Array([175, 175, 109, 31, 13, 152, 155, 237]),
       ),
-      0
+      0,
     )
   ) {
     return CascadeInstruction.Initialize;
@@ -121,9 +121,9 @@ export function identifyCascadeInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([29, 158, 252, 191, 10, 83, 219, 99])
+        new Uint8Array([29, 158, 252, 191, 10, 83, 219, 99]),
       ),
-      0
+      0,
     )
   ) {
     return CascadeInstruction.UpdateConfig;
@@ -132,20 +132,20 @@ export function identifyCascadeInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([183, 18, 70, 156, 148, 109, 161, 34])
+        new Uint8Array([183, 18, 70, 156, 148, 109, 161, 34]),
       ),
-      0
+      0,
     )
   ) {
     return CascadeInstruction.Withdraw;
   }
   throw new Error(
-    'The provided instruction could not be identified as a cascade instruction.'
+    'The provided instruction could not be identified as a cascade instruction.',
   );
 }
 
 export type ParsedCascadeInstruction<
-  TProgram extends string = 'HQ8ejrFMtoNsShZRqkH842BRDqpzh7Xy7b5iqc1U9ffA',
+  TProgram extends string = 'DJQChB4riBobXMsFgJwa5wGpwXGzGsrv8EMsWkT6SGnB',
 > =
   | ({
       instructionType: CascadeInstruction.CreateCampaign;

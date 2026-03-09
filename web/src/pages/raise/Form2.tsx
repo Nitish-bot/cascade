@@ -43,7 +43,7 @@ function Form2({ onSubmit, onSubmitBack }: Props) {
           <CardHeader>
             <CardTitle className='text-4xl'>Create Fundraiser</CardTitle>
             <CardDescription className='text-lg'>
-              Enter some details about the beneficiary first
+              Tell your story and add an image
             </CardDescription>
           </CardHeader>
 

@@ -82,14 +82,14 @@ export const formSchema2 = z.object({
       message: 'Story must be at least 50 characters.',
     })
     .max(2500, {
-      message: 'Story must be at most 5000 characters.',
+      message: 'Story must be at most 2500 characters.',
     }),
   image: z
     .instanceof(FileList)
     .refine((files) => files.length === 1, {
       message: 'Please upload an image.',
     })
-    .refine((files) => files.item(0)?.size ?? 0 <= 5 * 1024 * 1024, {
+    .refine((files) => (files.item(0)?.size ?? 0) <= 5 * 1024 * 1024, {
       message: 'Image size must be less than 5MB.',
     })
     .refine(

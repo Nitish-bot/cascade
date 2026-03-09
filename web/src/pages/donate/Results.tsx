@@ -25,26 +25,31 @@ function Results({ fundraisers, setFundraisers }: Props) {
 
   return (
     <section className='w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto px-16 mb-4'>
-      {fundraisers.length > 0 
-        ? fundraisers.map((fundraiser) => {
+      {fundraisers.length > 0 ? (
+        fundraisers.map((fundraiser) => {
           const imgSrc = getImageUrl(fundraiser.imageID);
 
-          return Cause(
-            fundraiser.$id,
-            fundraiser.title,
-            fundraiser.story,
-            fundraiser.goal,
-            fundraiser.progress,
-            imgSrc,
+          return (
+            <Cause
+              key={fundraiser.$id}
+              id={fundraiser.$id}
+              title={fundraiser.title}
+              description={fundraiser.story}
+              goal={fundraiser.goal}
+              completed={fundraiser.progress}
+              imgUrl={imgSrc}
+            />
           );
-      }) 
-      : Cause(
-        "null",
-        "loading..",
-        "",
-        420,
-        69,
-      ) }
+        })
+      ) : (
+        <Cause
+          id='loading'
+          title='Loading...'
+          description=''
+          goal={0}
+          completed={0}
+        />
+      )}
     </section>
   );
 }

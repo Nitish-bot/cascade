@@ -1,10 +1,9 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { StandardConnect, StandardDisconnect } from "@wallet-standard/core";
 import type { UiWallet } from "@wallet-standard/react";
 import { uiWalletAccountBelongsToUiWallet, useWallets } from "@wallet-standard/react";
 import { useContext, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
@@ -15,6 +14,8 @@ import { SelectedWalletAccountContext } from "@/context/SelectedWalletAccountCon
 import { ConnectWalletMenuItem } from "@/components/solana/ConnectWalletMenuItem";
 import { ErrorDialog } from "@/components/solana/ErrorDialog";
 import { WalletAccountIcon } from "@/components/solana/WalletAccountIcon";
+import getSupportedWallets from "@/lib/supportedWallets";
+import { ChainContext } from "@/context/ChainContext";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -23,6 +24,7 @@ type Props = Readonly<{
 export function ConnectWalletMenu({ children }: Props) {
   const { current: NO_ERROR } = useRef(Symbol());
   const wallets = useWallets();
+  const { chain } = useContext(ChainContext);
   const [selectedWalletAccount, setSelectedWalletAccount] = useContext(SelectedWalletAccountContext);
   const [error, setError] = useState(NO_ERROR);
   const [forceClose, setForceClose] = useState(false);
@@ -44,14 +46,7 @@ export function ConnectWalletMenu({ children }: Props) {
       />
     );
   }
-  const supportedWallets = [];
-  for (const wallet of wallets) {
-    if (wallet.features.includes(StandardConnect) 
-      && wallet.features.includes(StandardDisconnect)
-      && wallet.chains.includes('solana:devnet')) {
-      supportedWallets.push(wallet);
-    }
-  }
+  const supportedWallets = getSupportedWallets(wallets, chain);
   return (
     <div className="relative">
       <DropdownMenu open={forceClose ? false : undefined} onOpenChange={setForceClose.bind(null, false)}>

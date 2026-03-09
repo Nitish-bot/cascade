@@ -47,7 +47,7 @@ export const UPDATE_CONFIG_DISCRIMINATOR = new Uint8Array([
 
 export function getUpdateConfigDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 8).encode(
-    UPDATE_CONFIG_DISCRIMINATOR
+    UPDATE_CONFIG_DISCRIMINATOR,
   );
 }
 
@@ -98,7 +98,7 @@ export function getUpdateConfigInstructionDataEncoder(): Encoder<UpdateConfigIns
       ['newMinWithdrawal', getOptionEncoder(getU64Encoder())],
       ['newPlatformFeeBps', getOptionEncoder(getU64Encoder())],
     ]),
-    (value) => ({ ...value, discriminator: UPDATE_CONFIG_DISCRIMINATOR })
+    (value) => ({ ...value, discriminator: UPDATE_CONFIG_DISCRIMINATOR }),
   );
 }
 
@@ -119,7 +119,7 @@ export function getUpdateConfigInstructionDataCodec(): Codec<
 > {
   return combineCodec(
     getUpdateConfigInstructionDataEncoder(),
-    getUpdateConfigInstructionDataDecoder()
+    getUpdateConfigInstructionDataDecoder(),
   );
 }
 
@@ -142,7 +142,7 @@ export async function getUpdateConfigInstructionAsync<
   TProgramAddress extends Address = typeof CASCADE_PROGRAM_ADDRESS,
 >(
   input: UpdateConfigAsyncInput<TAccountAuthority, TAccountConfig>,
-  config?: { programAddress?: TProgramAddress }
+  config?: { programAddress?: TProgramAddress },
 ): Promise<
   UpdateConfigInstruction<TProgramAddress, TAccountAuthority, TAccountConfig>
 > {
@@ -179,7 +179,7 @@ export async function getUpdateConfigInstructionAsync<
       getAccountMeta(accounts.config),
     ],
     data: getUpdateConfigInstructionDataEncoder().encode(
-      args as UpdateConfigInstructionDataArgs
+      args as UpdateConfigInstructionDataArgs,
     ),
     programAddress,
   } as UpdateConfigInstruction<
@@ -208,7 +208,7 @@ export function getUpdateConfigInstruction<
   TProgramAddress extends Address = typeof CASCADE_PROGRAM_ADDRESS,
 >(
   input: UpdateConfigInput<TAccountAuthority, TAccountConfig>,
-  config?: { programAddress?: TProgramAddress }
+  config?: { programAddress?: TProgramAddress },
 ): UpdateConfigInstruction<TProgramAddress, TAccountAuthority, TAccountConfig> {
   // Program address.
   const programAddress = config?.programAddress ?? CASCADE_PROGRAM_ADDRESS;
@@ -233,7 +233,7 @@ export function getUpdateConfigInstruction<
       getAccountMeta(accounts.config),
     ],
     data: getUpdateConfigInstructionDataEncoder().encode(
-      args as UpdateConfigInstructionDataArgs
+      args as UpdateConfigInstructionDataArgs,
     ),
     programAddress,
   } as UpdateConfigInstruction<
@@ -261,7 +261,7 @@ export function parseUpdateConfigInstruction<
 >(
   instruction: Instruction<TProgram> &
     InstructionWithAccounts<TAccountMetas> &
-    InstructionWithData<ReadonlyUint8Array>
+    InstructionWithData<ReadonlyUint8Array>,
 ): ParsedUpdateConfigInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 2) {
     // TODO: Coded error.

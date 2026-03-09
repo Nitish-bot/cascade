@@ -12,6 +12,7 @@ import {
   fixEncoderSize,
   getBytesDecoder,
   getBytesEncoder,
+  getProgramDerivedAddress,
   getStructDecoder,
   getStructEncoder,
   getU64Decoder,
@@ -48,6 +49,7 @@ export type WithdrawInstruction<
   TAccountOrganiser extends string | AccountMeta<string> = string,
   TAccountCampaign extends string | AccountMeta<string> = string,
   TAccountVault extends string | AccountMeta<string> = string,
+  TAccountConfig extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -66,6 +68,9 @@ export type WithdrawInstruction<
       TAccountVault extends string
         ? WritableAccount<TAccountVault>
         : TAccountVault,
+      TAccountConfig extends string
+        ? ReadonlyAccount<TAccountConfig>
+        : TAccountConfig,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -86,7 +91,7 @@ export function getWithdrawInstructionDataEncoder(): FixedSizeEncoder<WithdrawIn
       ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
       ['amount', getU64Encoder()],
     ]),
-    (value) => ({ ...value, discriminator: WITHDRAW_DISCRIMINATOR })
+    (value) => ({ ...value, discriminator: WITHDRAW_DISCRIMINATOR }),
   );
 }
 
@@ -103,19 +108,118 @@ export function getWithdrawInstructionDataCodec(): FixedSizeCodec<
 > {
   return combineCodec(
     getWithdrawInstructionDataEncoder(),
-    getWithdrawInstructionDataDecoder()
+    getWithdrawInstructionDataDecoder(),
   );
+}
+
+export type WithdrawAsyncInput<
+  TAccountOrganiser extends string = string,
+  TAccountCampaign extends string = string,
+  TAccountVault extends string = string,
+  TAccountConfig extends string = string,
+  TAccountSystemProgram extends string = string,
+> = {
+  organiser: TransactionSigner<TAccountOrganiser>;
+  campaign: Address<TAccountCampaign>;
+  vault: Address<TAccountVault>;
+  config?: Address<TAccountConfig>;
+  systemProgram?: Address<TAccountSystemProgram>;
+  amount: WithdrawInstructionDataArgs['amount'];
+};
+
+export async function getWithdrawInstructionAsync<
+  TAccountOrganiser extends string,
+  TAccountCampaign extends string,
+  TAccountVault extends string,
+  TAccountConfig extends string,
+  TAccountSystemProgram extends string,
+  TProgramAddress extends Address = typeof CASCADE_PROGRAM_ADDRESS,
+>(
+  input: WithdrawAsyncInput<
+    TAccountOrganiser,
+    TAccountCampaign,
+    TAccountVault,
+    TAccountConfig,
+    TAccountSystemProgram
+  >,
+  config?: { programAddress?: TProgramAddress },
+): Promise<
+  WithdrawInstruction<
+    TProgramAddress,
+    TAccountOrganiser,
+    TAccountCampaign,
+    TAccountVault,
+    TAccountConfig,
+    TAccountSystemProgram
+  >
+> {
+  // Program address.
+  const programAddress = config?.programAddress ?? CASCADE_PROGRAM_ADDRESS;
+
+  // Original accounts.
+  const originalAccounts = {
+    organiser: { value: input.organiser ?? null, isWritable: true },
+    campaign: { value: input.campaign ?? null, isWritable: true },
+    vault: { value: input.vault ?? null, isWritable: true },
+    config: { value: input.config ?? null, isWritable: false },
+    systemProgram: { value: input.systemProgram ?? null, isWritable: false },
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedAccount
+  >;
+
+  // Original args.
+  const args = { ...input };
+
+  // Resolve default values.
+  if (!accounts.config.value) {
+    accounts.config.value = await getProgramDerivedAddress({
+      programAddress,
+      seeds: [
+        getBytesEncoder().encode(new Uint8Array([99, 111, 110, 102, 105, 103])),
+      ],
+    });
+  }
+  if (!accounts.systemProgram.value) {
+    accounts.systemProgram.value =
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+  }
+
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  return Object.freeze({
+    accounts: [
+      getAccountMeta(accounts.organiser),
+      getAccountMeta(accounts.campaign),
+      getAccountMeta(accounts.vault),
+      getAccountMeta(accounts.config),
+      getAccountMeta(accounts.systemProgram),
+    ],
+    data: getWithdrawInstructionDataEncoder().encode(
+      args as WithdrawInstructionDataArgs,
+    ),
+    programAddress,
+  } as WithdrawInstruction<
+    TProgramAddress,
+    TAccountOrganiser,
+    TAccountCampaign,
+    TAccountVault,
+    TAccountConfig,
+    TAccountSystemProgram
+  >);
 }
 
 export type WithdrawInput<
   TAccountOrganiser extends string = string,
   TAccountCampaign extends string = string,
   TAccountVault extends string = string,
+  TAccountConfig extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   organiser: TransactionSigner<TAccountOrganiser>;
   campaign: Address<TAccountCampaign>;
   vault: Address<TAccountVault>;
+  config: Address<TAccountConfig>;
   systemProgram?: Address<TAccountSystemProgram>;
   amount: WithdrawInstructionDataArgs['amount'];
 };
@@ -124,6 +228,7 @@ export function getWithdrawInstruction<
   TAccountOrganiser extends string,
   TAccountCampaign extends string,
   TAccountVault extends string,
+  TAccountConfig extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends Address = typeof CASCADE_PROGRAM_ADDRESS,
 >(
@@ -131,14 +236,16 @@ export function getWithdrawInstruction<
     TAccountOrganiser,
     TAccountCampaign,
     TAccountVault,
+    TAccountConfig,
     TAccountSystemProgram
   >,
-  config?: { programAddress?: TProgramAddress }
+  config?: { programAddress?: TProgramAddress },
 ): WithdrawInstruction<
   TProgramAddress,
   TAccountOrganiser,
   TAccountCampaign,
   TAccountVault,
+  TAccountConfig,
   TAccountSystemProgram
 > {
   // Program address.
@@ -149,6 +256,7 @@ export function getWithdrawInstruction<
     organiser: { value: input.organiser ?? null, isWritable: true },
     campaign: { value: input.campaign ?? null, isWritable: true },
     vault: { value: input.vault ?? null, isWritable: true },
+    config: { value: input.config ?? null, isWritable: false },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
@@ -171,10 +279,11 @@ export function getWithdrawInstruction<
       getAccountMeta(accounts.organiser),
       getAccountMeta(accounts.campaign),
       getAccountMeta(accounts.vault),
+      getAccountMeta(accounts.config),
       getAccountMeta(accounts.systemProgram),
     ],
     data: getWithdrawInstructionDataEncoder().encode(
-      args as WithdrawInstructionDataArgs
+      args as WithdrawInstructionDataArgs,
     ),
     programAddress,
   } as WithdrawInstruction<
@@ -182,6 +291,7 @@ export function getWithdrawInstruction<
     TAccountOrganiser,
     TAccountCampaign,
     TAccountVault,
+    TAccountConfig,
     TAccountSystemProgram
   >);
 }
@@ -195,7 +305,8 @@ export type ParsedWithdrawInstruction<
     organiser: TAccountMetas[0];
     campaign: TAccountMetas[1];
     vault: TAccountMetas[2];
-    systemProgram: TAccountMetas[3];
+    config: TAccountMetas[3];
+    systemProgram: TAccountMetas[4];
   };
   data: WithdrawInstructionData;
 };
@@ -206,9 +317,9 @@ export function parseWithdrawInstruction<
 >(
   instruction: Instruction<TProgram> &
     InstructionWithAccounts<TAccountMetas> &
-    InstructionWithData<ReadonlyUint8Array>
+    InstructionWithData<ReadonlyUint8Array>,
 ): ParsedWithdrawInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 4) {
+  if (instruction.accounts.length < 5) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -224,6 +335,7 @@ export function parseWithdrawInstruction<
       organiser: getNextAccount(),
       campaign: getNextAccount(),
       vault: getNextAccount(),
+      config: getNextAccount(),
       systemProgram: getNextAccount(),
     },
     data: getWithdrawInstructionDataDecoder().decode(instruction.data),
