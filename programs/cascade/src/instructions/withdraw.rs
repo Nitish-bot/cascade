@@ -1,19 +1,19 @@
 use anchor_lang::prelude::*;
-use anchor_lang::system_program::{ transfer, Transfer };
+use anchor_lang::system_program::{transfer, Transfer};
 
 use crate::errors::*;
 use crate::state::*;
-use crate::constants::LAMPORTS_PER_SOL;
 
 pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
     let organiser = &ctx.accounts.organiser;
     let vault = &ctx.accounts.vault;
     let campaign = &ctx.accounts.campaign;
+    let config = &ctx.accounts.config;
 
     let current_balance = **vault.lamports.borrow();
     let rent_exempt = Rent::get()?.minimum_balance(vault.data_len());
     let remaining_balance = current_balance.checked_sub(amount).ok_or(CascadeError::WithdrawalAmountExceedsBalance)?;
-    require!(current_balance >= LAMPORTS_PER_SOL / 100, CascadeError::InsufficientFundsForWithdrawal);
+    require!(current_balance >= config.min_withdrawal, CascadeError::InsufficientFundsForWithdrawal);
     require!(remaining_balance >= rent_exempt, CascadeError::VaultBelowRentExempt);
     
     let organiser_key = organiser.key();
@@ -66,6 +66,12 @@ pub struct Withdraw<'info> {
         bump = campaign.vault_bump,
     )]
     pub vault: SystemAccount<'info>,
+
+    #[account(
+        seeds = [b"config"],
+        bump
+    )]
+    pub config: Account<'info, Config>,
 
     pub system_program: Program<'info, System>,
 }

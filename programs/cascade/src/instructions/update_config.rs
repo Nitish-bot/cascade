@@ -13,7 +13,7 @@ pub fn update_config(
 ) -> Result<()> {
     let config = &mut ctx.accounts.config;
     
-    require!(ctx.accounts.authority.key() == config.authority, CascadeError::UnauthorizedAction); // Ensure fee is not more than 100%
+    require!(ctx.accounts.authority.key() == config.authority, CascadeError::UnauthorizedAction);
     
     config.authority = new_authority.unwrap_or(config.authority);
     config.treasury_pubkey = new_treasury_pubkey.unwrap_or(config.treasury_pubkey);

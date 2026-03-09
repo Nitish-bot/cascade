@@ -3,7 +3,7 @@
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
-    "client": "tsx client/createCodamaClient.ts"
+    "client": "tsx createCodamaClient.ts"
   },
   "dependencies": {
     "@solana/kit": "^3.0.3",
