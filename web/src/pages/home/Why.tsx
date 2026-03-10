@@ -42,33 +42,36 @@ const contents = [
 
 const cards = contents.map((content, index) => {
   const grid_number = `box-${index + 1}`;
-  {
-    /* /// !USEFUL!  -  The grid area style right here is the indentifier for css */
-  }
   return (
     <Button
+      // gridArea is honoured at xl+ where grid-template-areas is defined.
+      // At smaller breakpoints the name resolves to auto-placement (normal flow).
       style={{ gridArea: grid_number }}
-      className={
-        grid_number +
-        ' box whitespace-normal p-4 border-[var(--light-border)] hover:border-border transition-all duration-200'
-      }
+      className={[
+        grid_number,
+        'box whitespace-normal p-4',
+        // Ensure cards have visible height on mobile (xl uses the fixed 200px rows)
+        'min-h-[160px] xl:min-h-0',
+        'border-[var(--light-border)] hover:border-border',
+        'transition-all duration-200',
+      ].join(' ')}
       size='freeform'
-      variant={'reverse'}
+      variant='reverse'
       key={index}
     >
-      <div className='text-left flex h-full justify-between items-center m-3'>
-        <div className='card-text self-center'>
-          <h1 className='text-2xl font-bold leading-none tracking-wide break-words mb-3'>
+      <div className='text-left flex h-full justify-between items-center m-2 xl:m-3 gap-3'>
+        <div className='card-text self-center min-w-0'>
+          <h1 className='text-xl xl:text-2xl font-bold leading-snug tracking-wide break-words mb-2'>
             {content.title}
           </h1>
-          <p className='text-lg text-gray-800 leading-snug break-words'>
+          <p className='text-sm xl:text-lg text-gray-800 leading-snug break-words'>
             {content.description}
           </p>
         </div>
         <img
           src={content.icon}
           alt={content.title + ' icon'}
-          className='card-icon h-24 opacity-85 self-center'
+          className='card-icon h-16 xl:h-24 opacity-85 self-center flex-shrink-0'
         />
       </div>
     </Button>
@@ -80,7 +83,8 @@ function Why() {
     <div className='why min-h-[100vh] relative my-8'>
       <Star13 className='absolute w-[32vh] left-0 top-0 -translate-x-1/2 -translate-y-1/2' />
 
-      <div className='relative z-10 text-center pt-16 w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto'>
+      {/* ── Section heading ── */}
+      <div className='relative z-10 text-center pt-16 w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto px-4'>
         <h2 className='text-4xl md:text-6xl font-extrabold text-border'>
           Why{' '}
           <span className='text-border underline decoration-main'>CASCADE</span>
@@ -88,10 +92,23 @@ function Why() {
         </h2>
       </div>
 
-      <div className='flex justify-center items-center w-full pt-8'>
+      {/* ── Feature grid ──
+          mobile  : 1 column, content-height rows
+          sm/md/lg: 2 columns, content-height rows
+          xl+     : 3 × 200 px bento with named grid-template-areas (set in App.css)
+      ── */}
+      <div className='flex justify-center items-center w-full pt-8 px-4 sm:px-8 xl:px-0'>
         <div
           id='features-grid-container'
-          className='grid grid-cols-[200px_200px_200px] grid-rows-[200px_200px_200px] gap-8'
+          className='
+            grid
+            w-full          grid-cols-1
+            sm:grid-cols-2
+            xl:grid-cols-[200px_200px_200px]
+            xl:grid-rows-[200px_200px_200px]
+            xl:w-auto
+            gap-4 xl:gap-8
+          '
         >
           {cards}
         </div>

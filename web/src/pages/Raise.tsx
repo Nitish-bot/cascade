@@ -23,9 +23,12 @@ function RaiseFormContent({ organiserAccount }: { organiserAccount: any }) {
   const navigate = useNavigate();
 
   const { chain, solanaExplorerClusterName } = useContext(ChainContext);
-  
+
   // Now this is safe because the parent ensures organiserAccount is valid
-  const account = useWalletAccountTransactionSendingSigner(organiserAccount, chain);
+  const account = useWalletAccountTransactionSendingSigner(
+    organiserAccount,
+    chain,
+  );
   const connection = connect(solanaExplorerClusterName);
 
   function onSubmit1(values: z.infer<typeof formSchema1>) {
@@ -41,7 +44,7 @@ function RaiseFormContent({ organiserAccount }: { organiserAccount: any }) {
 
     const result = await submitRaiser(connection, account, completeFormData);
     setIsSubmitting(false);
-    
+
     if (result?.success) {
       navigate('/donate');
     } else {
@@ -69,8 +72,8 @@ function RaiseFormContent({ organiserAccount }: { organiserAccount: any }) {
   }
 
   return (
-    <div className='min-h-screen flex flex-col justify-center py-8 w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto'>
-      <Progress value={progress} className='w-full mb-6 mt-24' />
+    <div className='min-h-screen flex flex-col justify-center py-8 px-4 sm:px-6 md:px-0 w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto'>
+      <Progress value={progress} className='w-full mb-6 mt-20 sm:mt-24' />
       {step}
     </div>
   );
@@ -84,8 +87,10 @@ function Raise() {
     <>
       <Nav />
       {organiser === undefined ? (
-        <div className='min-h-screen flex flex-col items-center justify-center'>
-          <p className='text-lg font-semibold mb-4'>Please connect a wallet to create or withdraw from a campaign.</p>
+        <div className='min-h-screen flex flex-col items-center justify-center px-4'>
+          <p className='text-lg font-semibold mb-4 text-center'>
+            Please connect a wallet to create or withdraw from a campaign.
+          </p>
         </div>
       ) : (
         <RaiseFormContent organiserAccount={organiser} />

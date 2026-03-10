@@ -111,39 +111,52 @@ export default function Cause({
 
   const progressPercentage =
     goal > 0 ? Math.min((completed / goal) * 100, 100) : 0;
+
   return (
-    <Card className='shadow-0 my-12' key={id}>
-      <CardContent className='flex justify-between gap-12 xl:gap-24'>
-        <div className='self-center rounded-4xl'>
+    <Card className='shadow-0 my-8 sm:my-12' key={id}>
+      <CardContent className='flex flex-col sm:flex-row gap-6 sm:gap-12 xl:gap-24 p-4 sm:p-6'>
+        {/* ── Image ── */}
+        <div className='flex justify-center sm:justify-start sm:self-center flex-shrink-0'>
           {imgUrl ? (
             <img
               src={imgUrl}
-              className='h-40 xl:h-60 self-center flex-shrink-0 w-auto object-contain rounded-lg'
+              className='h-44 sm:h-40 xl:h-60 w-full sm:w-auto object-cover sm:object-contain rounded-lg'
               alt={title}
             />
           ) : (
-            <div className='h-40 xl:h-60 w-40 xl:w-60 self-center flex-shrink-0 bg-gray-200 rounded-lg' />
+            <div className='h-44 sm:h-40 xl:h-60 w-full sm:w-40 xl:w-60 bg-gray-200 rounded-lg' />
           )}
         </div>
-        <div className='flex flex-col justify-between text-right flex-1 min-w-0'>
-          <div className='space-y-3'>
+
+        {/* ── Content ── */}
+        <div className='flex flex-col justify-between flex-1 min-w-0 text-left sm:text-right'>
+          <div className='space-y-2 sm:space-y-3'>
             <CardTitle className='text-lg xl:text-2xl leading-tight tracking-wide break-words'>
               {title}
             </CardTitle>
-            <CardDescription className='text-base xl:text-lg break-words whitespace-pre-wrap overflow-hidden'>
+            <CardDescription className='text-sm sm:text-base xl:text-lg break-words whitespace-pre-wrap overflow-hidden'>
               {truncateDescription(description)}
             </CardDescription>
           </div>
-          <div className='flex gap-4 items-center justify-end w-full mt-8'>
-            <div className='flex flex-col items-end gap-2 w-full'>
+
+          {/* ── Progress + Donate button ── */}
+          <div className='flex flex-col sm:flex-row gap-4 items-start sm:items-center sm:justify-end w-full mt-6'>
+            {/* Progress bar sits above on mobile, left of button on sm+ */}
+            <div className='flex flex-col items-start sm:items-end gap-1 w-full sm:flex-1'>
               <Progress value={progressPercentage} className='w-full' />
-              <span className='text-sm xl:text-base text-muted-foreground'>
+              <span className='text-xs sm:text-sm xl:text-base text-muted-foreground'>
                 {completed} SOL of {goal} SOL
               </span>
             </div>
+
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <DialogTrigger asChild>
-                <Button id={id} size={'default'} variant={'noShadow'}>
+                <Button
+                  id={id}
+                  size='default'
+                  variant='noShadow'
+                  className='w-full sm:w-auto flex-shrink-0'
+                >
                   Donate
                 </Button>
               </DialogTrigger>
@@ -166,9 +179,7 @@ export default function Cause({
                       step='0.001'
                     />
                   </div>
-                  {error && (
-                    <p className='text-sm text-red-500'>{error}</p>
-                  )}
+                  {error && <p className='text-sm text-red-500'>{error}</p>}
                   {!donor && (
                     <p className='text-sm text-amber-600'>
                       Please connect your wallet to donate
@@ -179,6 +190,7 @@ export default function Cause({
                   <Button
                     onClick={handleDonate}
                     disabled={isLoading || !donor}
+                    className='w-full sm:w-auto'
                   >
                     {isLoading ? 'Processing...' : 'Confirm Donation'}
                   </Button>

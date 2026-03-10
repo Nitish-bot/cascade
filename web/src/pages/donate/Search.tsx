@@ -58,22 +58,28 @@ function Search() {
   });
 
   return (
-    <main className='mt-[20vh] w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto'>
-      <div className='flex justify-center gap-2 px-16'>
-        <ComboboxWithCheckbox
-          options={categories}
-          placeholder='Categories'
-          searchPlaceholder='Search categories'
-        />
+    <main className='mt-[18vh] sm:mt-[20vh] w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto px-4 sm:px-8 md:px-0'>
+      {/* On mobile: stack category filter above the search row.
+          On sm+: single row with category | input | button. */}
+      <div className='flex flex-col sm:flex-row gap-3 sm:gap-2'>
+        {/* Category filter — full width on mobile, fixed width on sm+ */}
+        <div className='w-full sm:w-auto'>
+          <ComboboxWithCheckbox
+            options={categories}
+            placeholder='Categories'
+            searchPlaceholder='Search categories'
+          />
+        </div>
 
+        {/* Search input + submit — row on every breakpoint once stacking is resolved */}
         <Form {...form}>
-          <form className='flex-1'>
+          <form className='flex flex-1 gap-2'>
             <FormField
               key='query'
               control={form.control}
               name='query'
               render={({ field }) => (
-                <FormItem>
+                <FormItem className='flex-1'>
                   <FormControl>
                     <Input
                       type='search'
@@ -85,16 +91,16 @@ function Search() {
                 </FormItem>
               )}
             />
+
+            <Button
+              size='icon'
+              type='submit'
+              className='hover:cursor-pointer w-10 h-10 min-w-10 min-h-10 flex-shrink-0'
+            >
+              <img src={search} className='w-5 h-5' />
+            </Button>
           </form>
         </Form>
-
-        <Button
-          size='icon'
-          type='submit'
-          className='hover:cursor-pointer w-10 h-10 min-w-10 min-h-10'
-        >
-          <img src={search} className='w-5 h-5' />
-        </Button>
       </div>
     </main>
   );

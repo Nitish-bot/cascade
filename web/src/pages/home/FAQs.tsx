@@ -62,14 +62,14 @@ function FAQs() {
     <div className='flex min-h-screen relative'>
       <Star13 className='absolute w-[32vh] right-0 bottom-0 translate-x-1/2 translate-y-1/2' />
 
-      <div className='z-10 flex flex-col self-center w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto '>
+      <div className='z-10 flex flex-col self-center w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto px-4 sm:px-6 md:px-0 py-16'>
         <div className='flex justify-between items-center'>
           <h1 className='text-left text-4xl md:text-6xl font-extrabold text-border mt-4'>
             FAQs
           </h1>
-          <Star9 className='h-16' />
+          <Star9 className='h-12 sm:h-16 flex-shrink-0' />
         </div>
-        <Accordion type='single' className=''>
+        <Accordion type='single' className='mt-4'>
           {faqItems}
         </Accordion>
       </div>

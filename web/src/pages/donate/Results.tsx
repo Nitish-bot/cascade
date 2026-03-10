@@ -21,7 +21,7 @@ function Results({ fundraisers, setFundraisers, connection, donor }: Props) {
     const res = await db.fundraisers.listRows([Query.limit(5)]);
     setFundraisers(res.rows);
   };
-  
+
   useEffect(() => {
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -29,16 +29,20 @@ function Results({ fundraisers, setFundraisers, connection, donor }: Props) {
 
   if (!donor) {
     return (
-      <section className='w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto px-16 mb-4'>
+      <section className='w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto px-4 sm:px-8 md:px-12 mb-4'>
         <div className='min-h-screen flex flex-col items-center justify-center'>
-          <p className='text-lg font-semibold mb-4'>Please connect a wallet to donate.</p>
-          {/* Optionally add a wallet connect button here */}
+          <p className='text-lg font-semibold mb-4 text-center'>
+            Please connect a wallet to donate.
+          </p>
         </div>
       </section>
     );
   }
 
-  const handleDonationComplete = (fundraiserId: string, newProgress: number) => {
+  const handleDonationComplete = (
+    fundraiserId: string,
+    newProgress: number,
+  ) => {
     setFundraisers(
       fundraisers.map((f) =>
         f.$id === fundraiserId ? { ...f, progress: newProgress } : f,
@@ -47,7 +51,7 @@ function Results({ fundraisers, setFundraisers, connection, donor }: Props) {
   };
 
   return (
-    <section className='w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto px-16 mb-4'>
+    <section className='w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto px-4 sm:px-8 md:px-12 mb-8'>
       {fundraisers.length > 0 ? (
         fundraisers.map((fundraiser) => {
           const imgSrc = getImageUrl(fundraiser.imageID);
@@ -70,7 +74,9 @@ function Results({ fundraisers, setFundraisers, connection, donor }: Props) {
             />
           );
         })
-      ) : ( <></> )}
+      ) : (
+        <></>
+      )}
     </section>
   );
 }

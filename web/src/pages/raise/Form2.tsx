@@ -39,19 +39,21 @@ function Form2({ onSubmit, onSubmitBack }: Props) {
         onSubmit={form2.handleSubmit(onSubmit)}
         className='flex flex-col justify-center space-y-8'
       >
-        <Card className='text-left p-8 bg-white'>
-          <CardHeader>
-            <CardTitle className='text-4xl'>Create Fundraiser</CardTitle>
-            <CardDescription className='text-lg'>
+        <Card className='text-left p-4 sm:p-8 bg-white'>
+          <CardHeader className='pb-2 sm:pb-4'>
+            <CardTitle className='text-2xl sm:text-4xl'>
+              Create Fundraiser
+            </CardTitle>
+            <CardDescription className='text-base sm:text-lg'>
               Tell your story and add an image
             </CardDescription>
           </CardHeader>
 
-          <CardContent className='flex flex-col gap-6 mt-16'>
+          <CardContent className='flex flex-col gap-5 mt-6 sm:mt-16'>
             {formItems(form2, formInfo2)}
           </CardContent>
 
-          <CardFooter className='mt-20 flex justify-between'>
+          <CardFooter className='mt-8 sm:mt-20 flex justify-between'>
             <Button size='icon' onClick={onSubmitBack}>
               <img src={left} />
             </Button>
