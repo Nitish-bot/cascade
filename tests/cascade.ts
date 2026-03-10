@@ -36,15 +36,15 @@ describe("cascade", () => {
   let configPda: Address;
 
   before(async () => {
-    connection = connect('helius-devnet');
+    connection = connect("helius-devnet");
 
     wallet = await connection.loadWalletFromFile();
-    
+
     // Create keypairs without auto-airdrop, then fund from main wallet
     [alice, bob] = await connection.createWallets(2, {
       airdropAmount: lamports(0n),
     });
-    
+
     // Fund alice and bob from the main wallet
     const transferToAlice = await connection.transferLamports({
       source: wallet,
@@ -185,8 +185,7 @@ describe("cascade", () => {
       "confirmed",
     );
     assert(
-      aliceBalanceAfter >=
-        aliceBalanceBefore + 1_000_000n - 10_000n,
+      aliceBalanceAfter >= aliceBalanceBefore + 1_000_000n - 10_000n,
       "Withdrawal not received in organiser account",
     );
   });

@@ -71,7 +71,9 @@ async function donate({
   // Find the campaign by matching metadata to fundraiserId
   const campaignInfo = await findCampaignByMetadata(connection, fundraiserId);
   if (!campaignInfo) {
-    throw new Error('Campaign not found on-chain. It may not have been created yet.');
+    throw new Error(
+      'Campaign not found on-chain. It may not have been created yet.',
+    );
   }
 
   const { campaignId } = campaignInfo;
