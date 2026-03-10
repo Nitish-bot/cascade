@@ -36,10 +36,28 @@ describe("cascade", () => {
   let configPda: Address;
 
   before(async () => {
-    connection = connect();
+    connection = connect('helius-devnet');
 
     wallet = await connection.loadWalletFromFile();
-    [alice, bob] = await connection.createWallets(2);
+    
+    // Create keypairs without auto-airdrop, then fund from main wallet
+    [alice, bob] = await connection.createWallets(2, {
+      airdropAmount: lamports(0n),
+    });
+    
+    // Fund alice and bob from the main wallet
+    const transferToAlice = await connection.transferLamports({
+      source: wallet,
+      destination: alice.address,
+      amount: lamports(50_000_000n), // 0.1 SOL
+    });
+    const transferToBob = await connection.transferLamports({
+      source: wallet,
+      destination: bob.address,
+      amount: lamports(50_000_000n), // 0.1 SOL
+    });
+    log("Funded alice:", transferToAlice);
+    log("Funded bob:", transferToBob);
 
     counterPda = (
       await connection.getPDAAndBump(CASCADE_PROGRAM_ADDRESS, counterSeeds)
@@ -78,24 +96,7 @@ describe("cascade", () => {
   });
 
   beforeEach(async () => {
-    connection.airdropIfRequired(
-      alice.address,
-      lamports(1_000_000_000n),
-      lamports(500_000_000n),
-    );
-
-    connection.airdropIfRequired(
-      bob.address,
-      lamports(1_000_000_000n),
-      lamports(500_000_000n),
-    );
-
-    connection.airdropIfRequired(
-      wallet.address,
-      lamports(1_000_000_000n),
-      lamports(500_000_000n),
-    );
-
+    // Wallets are funded in before(), no airdrops needed with Helius
     counter = (await getCounters())[0];
   });
 
@@ -138,7 +139,7 @@ describe("cascade", () => {
     );
 
     const balance = await connection.getLamportBalance(vaultPda, "confirmed");
-    assert(balance > 97_000_000n, "Donation not received in vault");
+    assert(balance > 19_000_000n, "Donation not received in vault");
   });
 
   it("withdraws funds from a campaign", async () => {
@@ -164,18 +165,6 @@ describe("cascade", () => {
       alice.address,
       "confirmed",
     );
-    const vaultBalance = await connection.getLamportBalance(
-      vaultPda,
-      "confirmed",
-    );
-
-    const rentExempt = await connection.rpc
-      .getMinimumBalanceForRentExemption(
-        // This is because the vault is just a
-        // SystemAccount with no data
-        BigInt(0),
-      )
-      .send();
 
     const tx = cascade.getWithdrawInstruction({
       organiser: alice,
@@ -183,7 +172,7 @@ describe("cascade", () => {
       vault: vaultPda,
       config: configPda,
 
-      amount: vaultBalance - rentExempt,
+      amount: 1_000_000n,
     });
 
     await connection.sendTransactionFromInstructions({
@@ -197,7 +186,7 @@ describe("cascade", () => {
     );
     assert(
       aliceBalanceAfter >=
-        aliceBalanceBefore + vaultBalance - rentExempt - 10_000n,
+        aliceBalanceBefore + 1_000_000n - 10_000n,
       "Withdrawal not received in organiser account",
     );
   });

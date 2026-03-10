@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -6,6 +7,20 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
+import donate, { type DonateParams } from './donateHandler';
+import { type Address } from '@solana/kit';
+import { type Connection } from 'solana-kite';
 
 type CauseProps = {
   id: string;
@@ -14,6 +29,10 @@ type CauseProps = {
   goal: number;
   completed: number;
   imgUrl?: string;
+  organiserPublicKey: string;
+  connection: Connection;
+  donor: DonateParams['donor'] | null;
+  onDonationComplete?: (newProgress: number) => void;
 };
 
 export default function Cause({
@@ -23,7 +42,16 @@ export default function Cause({
   goal,
   completed,
   imgUrl,
+  organiserPublicKey,
+  connection,
+  donor,
+  onDonationComplete,
 }: CauseProps) {
+  const [amount, setAmount] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const truncateDescription = (text: string, wordLimit = 20) => {
     if (!text) return '';
     const segments = text.match(/\S+\s*/g);
@@ -41,6 +69,44 @@ export default function Cause({
     return truncated.endsWith('\n')
       ? truncated + '…'
       : truncated.trimEnd() + '…';
+  };
+
+  const handleDonate = async () => {
+    const donationAmount = parseFloat(amount);
+    if (isNaN(donationAmount) || donationAmount <= 0) {
+      setError('Please enter a valid amount');
+      return;
+    }
+
+    if (!donor) {
+      setError('Please connect your wallet first');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await donate({
+        connection,
+        donor,
+        organiserAddress: organiserPublicKey as Address,
+        amount: donationAmount,
+        fundraiserId: id,
+        currentProgress: completed,
+      });
+
+      if (result.success) {
+        setIsOpen(false);
+        setAmount('');
+        onDonationComplete?.(result.newProgress);
+      }
+    } catch (err) {
+      console.error('Donation failed:', err);
+      setError(err instanceof Error ? err.message : 'Donation failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const progressPercentage =
@@ -75,9 +141,50 @@ export default function Cause({
                 {completed} SOL of {goal} SOL
               </span>
             </div>
-            <Button id={id} size={'default'} variant={'noShadow'}>
-              Donate
-            </Button>
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button id={id} size={'default'} variant={'noShadow'}>
+                  Donate
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Donate to {title}</DialogTitle>
+                  <DialogDescription>
+                    Support this cause by making a donation in SOL.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className='flex flex-col gap-4 py-4'>
+                  <div className='flex items-center gap-4'>
+                    <Input
+                      id='amount'
+                      type='number'
+                      placeholder='Amount in SOL'
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      min='0.001'
+                      step='0.001'
+                    />
+                  </div>
+                  {error && (
+                    <p className='text-sm text-red-500'>{error}</p>
+                  )}
+                  {!donor && (
+                    <p className='text-sm text-amber-600'>
+                      Please connect your wallet to donate
+                    </p>
+                  )}
+                </div>
+                <DialogFooter>
+                  <Button
+                    onClick={handleDonate}
+                    disabled={isLoading || !donor}
+                  >
+                    {isLoading ? 'Processing...' : 'Confirm Donation'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </CardContent>

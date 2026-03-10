@@ -88,7 +88,7 @@ export async function donateToCampaign(
     treasury: treasury,
     organiser: organiser,
 
-    amount: lamports(100_000_000n),
+    amount: lamports(20_000_000n), // 0.02 SOL - after 2% fee, vault gets ~0.0196 SOL
   });
 
   await connection.sendTransactionFromInstructions({

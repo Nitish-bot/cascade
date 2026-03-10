@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 function Raise() {
   const [formData, setFormData] = useState<Partial<FormData>>({});
   const [progress, setProgress] = useState(33);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const [organiser] = useContext(SelectedWalletAccountContext);
@@ -38,13 +39,21 @@ function Raise() {
     console.log('step 1 form data:', { ...formData, ...values });
   }
 
-  function onSubmit2(values: z.infer<typeof formSchema2>) {
+  async function onSubmit2(values: z.infer<typeof formSchema2>) {
     const completeFormData = { ...formData, ...values } as FormData;
     setProgress(100);
-    submitRaiser(connection, account, completeFormData);
+    setIsSubmitting(true);
     console.log('step 2 form data:', completeFormData);
 
-    navigate('/');
+    const result = await submitRaiser(connection, account, completeFormData);
+    setIsSubmitting(false);
+    
+    if (result?.success) {
+      navigate('/donate');
+    } else {
+      console.error('Failed to create campaign');
+      setProgress(67);
+    }
   }
 
   function onSubmitBack() {
@@ -57,6 +66,19 @@ function Raise() {
     <Form1 onSubmit={onSubmit1} />,
     <Form2 onSubmit={onSubmit2} onSubmitBack={onSubmitBack} />,
   ]);
+
+  if (isSubmitting) {
+    return (
+      <>
+        <Nav />
+        <div className='min-h-screen flex flex-col items-center justify-center'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary'></div>
+          <p className='mt-4 text-muted-foreground'>Creating your campaign...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

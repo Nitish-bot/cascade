@@ -60,20 +60,6 @@ async function submitRaiser(
       throw new Error('Invalid goal amount');
     }
 
-    const rowData = {
-      beneficiaryName: data.name,
-      beneficiaryEmail: data.email,
-      organiserPublicKey: organiser.address.toString(),
-      country: data.country,
-      deadline: data.deadline,
-      goal: goal,
-      title: data.title,
-      story: data.story,
-      imageID: fileId,
-      completed: false,
-      progress: 0,
-    } as Fundraiser;
-
     const rustGoal = BigInt(goal) * LAMPORTS_PER_SOL;
     const rustDate = BigInt(Math.floor(data.deadline.getTime() / 1000));
 
@@ -92,6 +78,20 @@ async function submitRaiser(
     const counter = (await getCounters())[0];
     assertAccountExists(counter);
     const count = counter.data.count;
+
+    const rowData = {
+      beneficiaryName: data.name,
+      beneficiaryEmail: data.email,
+      organiserPublicKey: organiser.address.toString(),
+      country: data.country,
+      deadline: data.deadline,
+      goal: goal,
+      title: data.title,
+      story: data.story,
+      imageID: fileId,
+      completed: false,
+      progress: 0,
+    } as Fundraiser;
 
     // WE NEED MORE SANITY CHECKS LIKE WHAT IF
     // getCounters RETURNS 0 ACCOUNTS
@@ -138,8 +138,10 @@ async function submitRaiser(
 
     await db.fundraisers.createRow(rowData, [], rowId);
     await db.fundraisers.readRow(rowId, []);
+    return { success: true, rowId };
   } catch (e) {
     console.log('error from submitraiser ', e);
+    return { success: false, error: e };
   }
 }
 

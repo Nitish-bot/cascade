@@ -18,4 +18,4 @@ cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "yarn run tsx --test --test-reporter=spec tests/*.ts"
+test = "yarn run tsx --env-file=.env --test --test-reporter=spec tests/*.ts"
