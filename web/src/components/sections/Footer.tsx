@@ -17,12 +17,16 @@ function Footer() {
               </p>
             </div>
             <div className='flex gap-4 mt-4'>
-              <Button size='icon'>
-                <img src={github} alt='GitHub' className='h-6 w-6' />
-              </Button>
-              <Button size='icon'>
-                <img src={x} alt='X' className='h-6 w-6' />
-              </Button>
+              <a href='https://github.com/Nitish-bot/cascade' target='_blank' rel='noopener noreferrer'>
+                <Button size='icon'>
+                  <img src={github} alt='GitHub' className='h-6 w-6' />
+                </Button>
+              </a>
+              <a href='https://x.com/nitish_boht' target='_blank' rel='noopener noreferrer'>
+                <Button size='icon'>
+                  <img src={x} alt='X' className='h-6 w-6' />
+                </Button>
+              </a>
             </div>
           </div>
 

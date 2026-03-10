@@ -1,8 +1,6 @@
 import { useContext, useState } from 'react';
 import { z } from 'zod';
-
 import { Progress } from '@/components/ui/progress';
-
 import { useMultiStepForm } from '@/hooks/useMultiStepForm';
 import { formSchema1, formSchema2 } from '@/pages/raise/formSchemas';
 import Form1 from '@/pages/raise/Form1';
@@ -17,33 +15,29 @@ import { SelectedWalletAccountContext } from '@/context/SelectedWalletAccountCon
 import { connect } from 'solana-kite';
 import { useNavigate } from 'react-router-dom';
 
-function Raise() {
+// eslint-disable-next-line
+function RaiseFormContent({ organiserAccount }: { organiserAccount: any }) {
   const [formData, setFormData] = useState<Partial<FormData>>({});
   const [progress, setProgress] = useState(33);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const [organiser] = useContext(SelectedWalletAccountContext);
-  if (organiser === undefined) {
-    throw new Error('No organiser wallet selected');
-  }
-
   const { chain, solanaExplorerClusterName } = useContext(ChainContext);
-  const account = useWalletAccountTransactionSendingSigner(organiser, chain);
+  
+  // Now this is safe because the parent ensures organiserAccount is valid
+  const account = useWalletAccountTransactionSendingSigner(organiserAccount, chain);
   const connection = connect(solanaExplorerClusterName);
 
   function onSubmit1(values: z.infer<typeof formSchema1>) {
     setFormData((prev) => ({ ...prev, ...values }));
     next();
     setProgress(67);
-    console.log('step 1 form data:', { ...formData, ...values });
   }
 
   async function onSubmit2(values: z.infer<typeof formSchema2>) {
     const completeFormData = { ...formData, ...values } as FormData;
     setProgress(100);
     setIsSubmitting(true);
-    console.log('step 2 form data:', completeFormData);
 
     const result = await submitRaiser(connection, account, completeFormData);
     setIsSubmitting(false);
@@ -51,7 +45,6 @@ function Raise() {
     if (result?.success) {
       navigate('/donate');
     } else {
-      console.error('Failed to create campaign');
       setProgress(67);
     }
   }
@@ -59,7 +52,6 @@ function Raise() {
   function onSubmitBack() {
     back();
     setProgress(33);
-    console.log('Back from step2');
   }
 
   const { step, next, back } = useMultiStepForm([
@@ -69,24 +61,35 @@ function Raise() {
 
   if (isSubmitting) {
     return (
-      <>
-        <Nav />
-        <div className='min-h-screen flex flex-col items-center justify-center'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary'></div>
-          <p className='mt-4 text-muted-foreground'>Creating your campaign...</p>
-        </div>
-        <Footer />
-      </>
+      <div className='min-h-screen flex flex-col items-center justify-center'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary'></div>
+        <p className='mt-4 text-muted-foreground'>Creating your campaign...</p>
+      </div>
     );
   }
 
   return (
+    <div className='min-h-screen flex flex-col justify-center py-8 w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto'>
+      <Progress value={progress} className='w-full mb-6 mt-24' />
+      {step}
+    </div>
+  );
+}
+
+// 2. The Main "Guard" Component
+function Raise() {
+  const [organiser] = useContext(SelectedWalletAccountContext);
+
+  return (
     <>
       <Nav />
-      <div className='min-h-screen flex flex-col justify-center py-8 w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto'>
-        <Progress value={progress} className='w-full mb-6 mt-24' />
-        {step}
-      </div>
+      {organiser === undefined ? (
+        <div className='min-h-screen flex flex-col items-center justify-center'>
+          <p className='text-lg font-semibold mb-4'>Please connect a wallet to create or withdraw from a campaign.</p>
+        </div>
+      ) : (
+        <RaiseFormContent organiserAccount={organiser} />
+      )}
       <Footer />
     </>
   );

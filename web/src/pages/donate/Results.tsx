@@ -17,15 +17,26 @@ type Props = {
 };
 
 function Results({ fundraisers, setFundraisers, connection, donor }: Props) {
+  const init = async () => {
+    const res = await db.fundraisers.listRows([Query.limit(5)]);
+    setFundraisers(res.rows);
+  };
+  
   useEffect(() => {
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const init = async () => {
-    const res = await db.fundraisers.listRows([Query.limit(5)]);
-    setFundraisers(res.rows);
-  };
+  if (!donor) {
+    return (
+      <section className='w-full max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-5xl mx-auto px-16 mb-4'>
+        <div className='min-h-screen flex flex-col items-center justify-center'>
+          <p className='text-lg font-semibold mb-4'>Please connect a wallet to donate.</p>
+          {/* Optionally add a wallet connect button here */}
+        </div>
+      </section>
+    );
+  }
 
   const handleDonationComplete = (fundraiserId: string, newProgress: number) => {
     setFundraisers(
@@ -59,18 +70,7 @@ function Results({ fundraisers, setFundraisers, connection, donor }: Props) {
             />
           );
         })
-      ) : (
-        <Cause
-          id='loading'
-          title='Loading...'
-          description=''
-          goal={0}
-          completed={0}
-          organiserPublicKey=''
-          connection={connection}
-          donor={null}
-        />
-      )}
+      ) : ( <></> )}
     </section>
   );
 }
