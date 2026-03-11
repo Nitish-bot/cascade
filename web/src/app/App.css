@@ -27,17 +27,70 @@
 }
 
 /* ─────────────────────────────────────────────
-   Features bento grid
-   xl+  → named grid areas with fixed cell sizes
-   <xl  → responsive 1/2-col grid (Tailwind classes)
+   Features bento grid — fully responsive in CSS
+   mobile : 1 column, auto-height rows
+   sm     : 2 columns, auto-height rows
+   xl+    : 3 × 200 px bento with named areas
    ───────────────────────────────────────────── */
 
+/* Mobile-first: single column */
+#features-grid-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Each card button must stretch to fill its grid cell.
+   inline-flex elements don't stretch automatically. */
+.box {
+  align-self: stretch;
+  justify-self: stretch;
+  width: 100%;
+  height: 100%;
+}
+
+/* sm: two columns */
+@media (min-width: 640px) {
+  #features-grid-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+}
+
+/* xl+: fixed bento */
 @media (min-width: 1280px) {
   #features-grid-container {
+    grid-template-columns: 200px 200px 200px;
+    grid-template-rows: 200px 200px 200px;
     grid-template-areas:
       'box-1 box-1 box-2'
       'box-3 box-4 box-2'
       'box-3 box-5 box-5';
+    width: auto;
+    gap: 2rem;
+  }
+
+  /* Assign named areas only at xl+ so smaller breakpoints auto-place normally */
+  .box-1 {
+    grid-area: box-1;
+  }
+  .box-2 {
+    grid-area: box-2;
+  }
+  .box-3 {
+    grid-area: box-3;
+  }
+  .box-4 {
+    grid-area: box-4;
+  }
+  .box-5 {
+    grid-area: box-5;
+  }
+
+  /* xl+ cells are 200px — remove the mobile min-height */
+  .box {
+    min-height: 0;
   }
 }
 
